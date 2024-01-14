@@ -1280,9 +1280,7 @@ setting.rechecking = function(threads)
                 sleep(delayharvest)
                 setting.reconnect(threads,doorfarm,tile.x,tile.y)
             end
-            if not ignoregems then
-                setting.g(range)
-            end
+            setting.g(range)
             sleep(30)
         end
         if setting.n(iditemtowear) == 0 then
@@ -1430,13 +1428,13 @@ setting.rechecking = function(threads)
                 tileD = tileD + 1
             end
         end
-        if setting.n(seed) >= amountseed then
-            setting.storingseeds()
-            log("["..indexbot.."]Rechecking")
-            setting.warp(threads,doorfarm)
-            setting.wordsrandom()
-            setting.webhookinfo()
-        end
+    end
+    if setting.n(seed) >= amountseed then
+        setting.storingseeds()
+        log("["..indexbot.."]Rechecking")
+        setting.warp(threads,doorfarm)
+        setting.wordsrandom()
+        setting.webhookinfo()
     end
 end
 
@@ -1516,9 +1514,7 @@ setting.harvest = function(threads)
                     sleep(delayharvest)
                     setting.reconnect(threads,doorfarm,x,y)
                 end
-                if not ignoregems then
-                    setting.g(range)
-                end
+                setting.g(range)
                 sleep(30)
             end
         end
@@ -1708,12 +1704,12 @@ setting.levelings = function(params)
                     sleep(delayharvest)
                     setting.reconnect(params,doorworldleveling,x,y)
                 end
-                if not ignoregems then
-                    if leveling then
-                        if getBot():getLocal().level >= setminlvl then
-                            setting.g(range)
-                        end
+                if leveling then
+                    if getBot():getLocal().level >= setminlvl then
+                        setting.g(range)
                     end
+                else
+                    setting.g(range)
                 end
                 sleep(30)
             end
