@@ -1518,82 +1518,84 @@ setting.harvest = function(threads)
 end
 
 setting.levelingcek = function(params)
-    log("["..indexbot.."]Rechecking")
-    ::BACK::
-    for _, obj in pairs(getBot():getObjects()) do
-        if obj.id == idblockleveling then
-            setting.u(math.floor(obj.pos.x / 32), math.floor(obj.pos.y / 32))
-            sleep(100)
-            setting.reconnect(params,doorworldleveling,math.floor(obj.pos.x / 32), math.floor(obj.pos.y / 32))
-            if getBot():isInside(math.floor(obj.pos.x / 32), math.floor(obj.pos.y / 32),range) then
-                setting.g(2)
+    if getBot():getLocal().level >= setminlvl then
+        log("["..indexbot.."]Rechecking")
+        ::BACK::
+        for _, obj in pairs(getBot():getObjects()) do
+            if obj.id == idblockleveling then
+                setting.u(math.floor(obj.pos.x / 32), math.floor(obj.pos.y / 32))
                 sleep(100)
                 setting.reconnect(params,doorworldleveling,math.floor(obj.pos.x / 32), math.floor(obj.pos.y / 32))
+                if getBot():isInside(math.floor(obj.pos.x / 32), math.floor(obj.pos.y / 32),range) then
+                    setting.g(2)
+                    sleep(100)
+                    setting.reconnect(params,doorworldleveling,math.floor(obj.pos.x / 32), math.floor(obj.pos.y / 32))
+                end
             end
-        end
-        if setting.n(idblockleveling) > 180 then
-            if pnbother then
-                setting.rotate(params,"",idblockleveling)
+            if setting.n(idblockleveling) > 180 then
+                if pnbother then
+                    setting.rotate(params,"",idblockleveling)
+                    log("["..indexbot.."]Rechecking")
+                    setting.warp(params,doorworldleveling)
+                    setting.wordsrandom()
+                    setting.webhookinfo()
+                else
+                    setting.rotate(params,doorworldleveling,idblockleveling)
+                end
+            end
+            if setting.n(eventList[1]) > amountevent then
+                setting.storingevents(params)
                 log("["..indexbot.."]Rechecking")
                 setting.warp(params,doorworldleveling)
                 setting.wordsrandom()
                 setting.webhookinfo()
-            else
-                setting.rotate(params,doorworldleveling,idblockleveling)
+            elseif setting.n(idblockleveling+1) >= amountseed then
+                setting.plant(params,doorworldleveling,idblockleveling+1)
+                goto BACK
+            elseif getBot():getLocal().gems > mingems and buypack then
+                setting.buying()
+                setting.storingpacks()
+                log("["..indexbot.."]Rechecking")
+                setting.warp(params,doorworldleveling)
+                setting.wordsrandom()
+                setting.webhookinfo()
             end
         end
-        if setting.n(eventList[1]) > amountevent then
-            setting.storingevents(params)
-            log("["..indexbot.."]Rechecking")
-            setting.warp(params,doorworldleveling)
-            setting.wordsrandom()
-            setting.webhookinfo()
-        elseif setting.n(idblockleveling+1) >= amountseed then
-            setting.plant(params,doorworldleveling,idblockleveling+1)
-            goto BACK
-        elseif getBot():getLocal().gems > mingems and buypack then
-            setting.buying()
-            setting.storingpacks()
-            log("["..indexbot.."]Rechecking")
-            setting.warp(params,doorworldleveling)
-            setting.wordsrandom()
-            setting.webhookinfo()
-        end
-    end
-    tileA = 99
-    tileB = 0
-    tileC = -1
-    tileD = 0
-    for y = -1, 53 do
-        for x = tileA, tileB, tileC do
-            if getBot():getTile(x,y).fg == 0 and getBot():getTile(x,y).flags ~= 0 then
-                if setting.n(idblockleveling+1) == 0 then
-                    break
-                end
-                setting.u(x,y)
-                sleep(delayplant)
-                setting.reconnect(params,doorworldleveling,x,y)
-                while getBot():getTile(x,y).fg ~= idblockleveling+1 do
-                    setting.t(idblockleveling+1,0,0)
+        tileA = 99
+        tileB = 0
+        tileC = -1
+        tileD = 0
+        for y = -1, 53 do
+            for x = tileA, tileB, tileC do
+                if getBot():getTile(x,y).fg == 0 and getBot():getTile(x,y).flags ~= 0 then
+                    if setting.n(idblockleveling+1) == 0 then
+                        break
+                    end
+                    setting.u(x,y)
                     sleep(delayplant)
                     setting.reconnect(params,doorworldleveling,x,y)
+                    while getBot():getTile(x,y).fg ~= idblockleveling+1 do
+                        setting.t(idblockleveling+1,0,0)
+                        sleep(delayplant)
+                        setting.reconnect(params,doorworldleveling,x,y)
+                    end
                 end
             end
-        end
-        if tileD == 1 then
-            if tileA == 0 then
-                tileA = 99
-                tileB = 0
-                tileC = -1
-                tileD = 0
-            elseif tileA == 99 then
-                tileA = 0
-                tileB = 99
-                tileC = 1
-                tileD = 0
+            if tileD == 1 then
+                if tileA == 0 then
+                    tileA = 99
+                    tileB = 0
+                    tileC = -1
+                    tileD = 0
+                elseif tileA == 99 then
+                    tileA = 0
+                    tileB = 99
+                    tileC = 1
+                    tileD = 0
+                end
+            elseif tileD == 0 then
+                tileD = tileD + 1
             end
-        elseif tileD == 0 then
-            tileD = tileD + 1
         end
     end
 end
