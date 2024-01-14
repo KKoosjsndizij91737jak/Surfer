@@ -100,7 +100,7 @@ setting.generate = function(length, letter)
     end
     return generatorHelper(length)
 end
-local find = setting.generate(letters)
+local find = setting.generate(math.random(letters,letters))
 
 setting.split = function(str, ptr)
     if not ptr then 
