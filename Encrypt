@@ -14,6 +14,7 @@ worlds = {}
 sjam = {}
 index = 1
 strings = ""
+local find = getBot():getLocal().name
 local tileBlock = 0
 local tileSeed = 0
 local tilePack = 0
@@ -85,25 +86,6 @@ setting.wordsrandom = function()
     getBot():say(words)
     sleep(2000)
 end
-
-setting.generate = function(length)
-    local alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    local withnum = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-    local generate = ""
-    for i = 1,length do
-        local random = math.random(1,#alphabet)
-        local randomnumber = math.random(1,#withnum)
-        local acakalpa = string.sub(alphabet,random,random)
-        local acaknomor = string.sub(withnum,randomnumber,randomnumber)
-        if withnumber then
-            generate = generate..acaknomor
-        else
-            generate = generate..acakalpa
-        end
-    end
-    return generate
-end
-local find = setting.generate(letter)
 
 setting.split = function(str, ptr)
     if not ptr then 
@@ -1799,6 +1781,11 @@ setting.takejammer = function(threads)
 end
 
 setting.placeall = function()
+    while getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32) - 1).fg ~= 0 do
+        setting.p(0,-1)
+        sleep(delayplace)
+        setting.reconnect(find,"")
+    end
     while getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32) - 1).fg ~= 226 do
         setting.t(226,0,-1)
         sleep(delayplace)
