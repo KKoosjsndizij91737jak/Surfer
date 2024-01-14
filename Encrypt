@@ -1,0 +1,2063 @@
+transcedence = {12,30,686,858,886,1040,1294,4164,4190,1684}
+
+for i, bot in pairs(getBots()) do
+    if getBot():getLocal().name:upper() == bot:getLocal().name:upper() then
+        indexbot = i
+    end
+end
+
+getBot():setBool("autoReconnect", false)
+getBot():setBool("legalmode",false)
+tilebreak = {}
+infoid = {}
+worlds = {}
+sjam = {}
+index = 1
+strings = ""
+local tileBlock = 0
+local tileSeed = 0
+local tilePack = 0
+local tileEvent = 0
+local tileJammer = 0
+local tileY = -1
+local setting = {
+    seed = 1,
+    pack = 1,
+    timechecker = os.time(),
+    take = 1
+}
+jammerX = dropjammerX - 1
+jammerY = dropjammerY - 1
+seedX = dropseedX - 1
+seedY = dropseedY - 1
+packX = droppackX - 1
+packY = droppackY - 1
+eventX = dropeventX - 1
+eventY = dropeventY - 1
+posX = customBreakX - 1
+posY = customBreakY - 1
+seed = block + 1
+
+for i = 1,worldperbotjammer do
+    table.insert(sjam,worldtotakeback[math.floor((indexbot - 1) * worldperbotjammer + i)])
+end
+
+setting.wordsrandom = function()
+    local random = {
+        "Cuma senyuman doang, udah bikin gemes.",
+        "Bentar lagi uda jarang ni lu nongkrong di sini.",
+        "Kita ngapain sih, ikut-ikutan heboh?",
+        "Gue tuh selalu berusaha baik, tapi gimana ya.",
+        "Gak usah diambil pusing, santai aja dulu.",
+        "Jangan sok asik, tuh keliatan banget.",
+        "Santai aja dulu, gak usah tegang.",
+        "Jangan bawa drama-dramaan, capek.",
+        "Gak usah dibawa serius, nanti malah stress.",
+        "Gue tuh kalem, gak usah ribut.",
+        "Lagi asik nongkrong, ada yang ngomongin.",
+        "Buat apa pake jaim-jaim, santai aja.",
+        "Lagi asik main game, tiba-tiba ada yang gangguin.",
+        "Gak usah sok asik, keliatan banget.",
+        "Nggak perlu pake baper, gak ada gunanya.",
+        "Gue gak peduliin, tinggalin aja.",
+        "Santai aja dulu, gak usah terlalu serius.",
+        "Nggak usah diambil pusing, biar enak.",
+        "Hati-hati, banyak orang munafik.",
+        "Lagi pada heboh semua, bikin geger.",
+        "Gak usah pake jaim-jaim, santai aja.",
+        "Lagi dengerin lagu enak, bawaannya pengen joget.",
+        "Nih, lagi pada rame-rame di tempat baru.",
+        "Gue tuh kalem, gak perlu ribut.",
+        "Udah capek-capek ngomong, gak dengerin juga.",
+        "Asik banget nih, liburan seru.",
+        "Gak usah sok asik, keliatan banget.",
+        "Bentar lagi weekend, pasti seru banget nih.",
+        "Cuma bisa doa aja, gimana lagi.",
+        "Lagi asik main, ada yang gangguin.",
+        "Gue gak peduliin, tinggalin aja.",
+        "Lagi mikirin, gak usah bener-bener serius.",
+        "Jangan dibawa serius, nanti malah stress.",
+        "Kondisi lagi kacau, gak karuan banget.",
+        "Nih, jualan makanan enak banget di sini.",
+    }
+    local idx = math.random(1, #random)
+    local words = random[idx]
+    getBot():say(words)
+    sleep(2000)
+end
+
+setting.generate = function()
+    local alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    local withnum = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    local generate = ""
+    for i = 1,letter do
+        local random = math.random(1,#alphabet)
+        local randomnumber = math.random(1,#withnum)
+        local acakalpa = string.sub(alphabet,random,random)
+        local acaknomor = string.sub(withnum,randomnumber,randomnumber)
+        if withnumber then
+            generate = generate..acaknomor
+        else
+            generate = generate..acakalpa
+        end
+    end
+    return generate
+end
+local trx = setting.generate()
+local find = setting.generate()
+
+setting.split = function(str, ptr)
+    if not ptr then 
+        ptr = "%s"
+    end
+    local tbl = {}
+    for string in string.gmatch(str, ptr) do
+        table.insert(tbl, string) 
+    end
+    return tbl
+end
+
+for i =  1,farmperbot do
+    table.insert(worlds,worldfarm[math.floor((indexbot - 1) * farmperbot + i)])
+end
+
+for x = math.floor(pnbtile/2),1,-1 do
+    x = x * -1
+    table.insert(tilebreak,x)
+end
+
+for x = 0, math.ceil(pnbtile/2) - 1 do
+    table.insert(tilebreak,x)
+end
+
+setting.getStatusBot = function()
+    local ident = ""
+    if getBot():getEnetStatus() == Suspended then
+        ident = "Suspended"
+    elseif getBot():getEnetStatus() == Disconnected then
+        ident = "Offline"
+    elseif getBot():getEnetStatus() == Connected then
+        ident = "Online"
+    end
+    return ident
+end
+
+setting.getAllStatus = function()
+    local ident = ""
+    for i, list in pairs(getBots()) do
+        if list:getEnetStatus() == Suspended then
+            Status = "Suspended"
+        elseif list:getEnetStatus() == Disconnected then
+            Status = "Offline"
+        elseif list:getEnetStatus() == Connected then
+            Status = "Online"
+        end
+        ident = ident .."\n"..Status..""
+    end
+    return ident
+end
+
+--------------- wrapper ----------
+---> p = punch
+---> t = place
+---> v = move
+---> k = drop
+---> n = findItem
+---> h = wear
+---> u = findPath
+---> g = collect
+
+setting.p = function(ex,ye)
+    return getBot():hitTile(math.floor(getBot():getLocal().pos.x / 32)+ex,math.floor(getBot():getLocal().pos.y / 32)+ye)
+end
+
+setting.t = function(id,ex,ye)
+    return getBot():placeTile(math.floor(getBot():getLocal().pos.x / 32)+ex,math.floor(getBot():getLocal().pos.y / 32)+ye,id)
+end
+
+setting.v = function(ex,ye)
+    local currentPosX = math.floor(getBot():getLocal().pos.x / 32)
+    local currentPosY = math.floor(getBot():getLocal().pos.y / 32)
+    return getBot():findPath(currentPosX + ex,currentPosY + ye)
+end
+
+setting.k = function(id,count)
+    count = count or getBot():getItemCount(id)
+    return getBot():drop(id,count)
+end
+
+setting.n = function(id)
+    return getBot():getItemCount(id)
+end
+
+setting.h = function(id)
+    local packet = {}
+    packet.type = 10
+    packet.int_data = id
+    getBot():sendPacketRaw(packet)
+end
+
+setting.u = function(ex,ye)
+    return getBot():findPath(ex,ye)
+end
+
+setting.g = function(range, itemId)
+    for _, object in pairs(getBot():getObjects()) do
+        local posX = math.floor(object.pos.x / 32)
+        local posY = math.floor(object.pos.y / 32)
+        if getBot():isInside(posX, posY, range) then
+            if itemId == nil or object.id == itemId then
+                getBot():collectObject(object.uid)
+            end
+        end
+    end
+end
+
+-----------------------------------
+
+setting.punchitem = function(x,y)
+    for _,tilepunch in pairs(tilebreak) do
+        if getBot():getTile(x + tilepunch,y + tileY).fg ~= 0 or getBot():getTile(x + tilepunch,y + tileY).bg ~= 0 then
+            return true
+        end
+    end
+    return false
+end
+
+setting.placeitem = function(x,y)
+    for _,tileplace in pairs(tilebreak) do
+        if getBot():getTile(x + tileplace,y + tileY).fg == 0 and getBot():getTile(x+tileplace,y + tileY).bg == 0 then
+            return true
+        end
+    end
+    return false
+end
+
+setting.itemFloat = function(id)
+	count = 0
+	for _, obj in pairs(getBot():getObjects()) do
+		if obj.id == id then
+			count = count + obj.count
+		end
+	end
+	return count
+end
+
+setting.writeFile = function(info,text)
+    local file = io.open(""..info..".txt","a")
+    file:write(text.."\n")
+    file:close()
+end
+
+setting.botstatus = function()
+    strings = ""
+    for _, bot in pairs(getBots()) do
+        strings = strings.."\n["..bot:getLocal().level.."]"..(string.sub(bot:getLocal().name,1,5)).."" 
+    end
+    return strings
+end
+
+setting.botworld = function()
+    strings = ""
+    for _, bot in pairs(getBots()) do
+        strings = strings.."\n"..(string.sub(bot:getCurrentWorld(),1,5)).."" 
+    end
+    return strings
+end
+
+setting.hookseed = function()
+    strings = ""
+	for i = 1, #worldseed do
+        strings = strings.."\nStorage seed - "..i.." : "..(infoid[worldseed[i]] or "Undefined")..""
+    end
+    return strings
+end
+
+setting.hookpack = function()
+    strings = ""
+	for i = 1, #worldpack do
+        strings = strings.."\nStorage pack - "..i.." : "..(infoid[worldpack[i]] or "Undefined")..""
+    end
+    return strings
+end
+
+setting.hookevent = function()
+    strings = ""
+	for i = 1, #worldevent do
+        strings = strings.."\nStorage event "..i.." : "..(infoid[worldevent[i]] or "Undefined")..""
+    end
+    return strings
+end
+
+setting.botgems = function()
+    local count = 0
+    for _,bot in pairs(getBots()) do
+        count = count + bot:getLocal().gems
+    end
+    return count
+end
+
+setting.botinfo = function(content)
+	if webhookstatus then
+		text = [[
+			$webHookUrl = "]]..webhookstatuslink..[["
+			$payload = @{
+				content = "]]..content..[["
+			}
+			[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+			Invoke-RestMethod -Uri $webHookUrl -Body ($payload | ConvertTo-Json -Depth 4) -Method Post -ContentType "application/json"
+		]]
+		local file = io.popen("powershell -command -", "w")
+		file:write(text)
+		file:close()
+	end
+end
+
+setting.goodtimes = function(estimates)
+    local seconds = tonumber(estimates)
+    if seconds <= 0 then
+        return "00:00:00";
+    else
+        hours = string.format("%02.f", math.floor(estimates/3600));
+        minutes = string.format("%02.f", math.floor(estimates/60 - (hours*60)));
+        seconds = string.format("%02.f", math.floor(estimates - hours*3600 - minutes *60));
+        return ""..hours.." : "..minutes.." : "..seconds
+    end
+end
+
+setting.webhookinfo = function()
+	if botinfo then
+        local text = [[
+            $webHookUrl = "]]..linkbotinfo..[[/messages/]]..messageidbotinfo..[["
+            $payload = @{
+                username = "Debra's"
+                embeds = @(
+                    @{
+                        title = "BOT STATICS"
+                        color = "]]..math.random(111111,999999)..[["
+                        fields = @(
+                            @{
+                                name = "TOTAL GEMS & RUNTIME"
+                                value = "]]..""..setting.botgems().." | "..setting.goodtimes(os.difftime(os.time(),setting.timechecker))..""..[["
+                                inline = "false"
+                            }
+                            @{
+                                name = "GrowID"
+                                value = "]]..setting.botstatus()..[["
+                                inline = "true"
+                            }
+                            @{
+                                name = "WORLD"
+                                value = "]]..setting.botworld()..[["
+                                inline = "true"
+                            }
+                            @{
+                                name = "STATUS"
+                                value = "]]..setting.getAllStatus()..[["
+                                inline = "true"
+                            }
+                        )
+                        footer = @{
+                            text = "[Surfer v0.1] Caramoy's`nLast update : ]]..(os.date("!%a %b %d, %Y at %I:%M %p", os.time() + 7 * 60 * 60))..[["
+                        }
+                    }
+                )
+            }
+            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+            Invoke-RestMethod -Uri $webHookUrl -Body ($payload | ConvertTo-Json -Depth 4) -Method Patch -ContentType 'application/json'
+        ]]
+        local pipe = io.popen("powershell -command -", "w")
+        pipe:write(text)
+        pipe:close()
+    end
+end
+
+setting.storageinfo = function()
+	if infostorage then
+        local text = [[
+            $webHookUrl = "]]..linkinfostorage..[[/messages/]]..messageidinfostorage..[["
+            $payload = @{
+                username = "Debra's"
+                embeds = @(
+                    @{
+                        title = "STORAGE STATICS"
+                        color = "]]..math.random(111111,999999)..[["
+                        fields = @(
+                            @{
+                                name = ""
+                                value = "]]..setting.hookseed()..[["
+                                inline = "true"
+                            }
+                            @{
+                                name = ""
+                                value = "]]..setting.hookpack()..[["
+                                inline = "true"
+                            }
+                            @{
+                                name = ""
+                                value = "]]..setting.hookevent()..[["
+                                inline = "true"
+                            }
+                        )
+                        footer = @{
+                            text = "[Surfer v0.1] Caramoy's`nLast update : ]]..(os.date("!%a %b %d, %Y at %I:%M %p", os.time() + 7 * 60 * 60))..[["
+                        }
+                    }
+                )
+            }
+            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+            Invoke-RestMethod -Uri $webHookUrl -Body ($payload | ConvertTo-Json -Depth 4) -Method Patch -ContentType 'application/json'
+        ]]
+        local pipe = io.popen("powershell -command -", "w")
+        pipe:write(text)
+        pipe:close()
+    end
+end
+
+setting.reconnect = function(world,id,x,y)
+    world = world:lower()
+    id = id or ""
+    if getBot():getCurrentWorld() ~= world and getBot():getEnetStatus() == Connected then 
+        setting.botinfo("[ "..getBot():getLocal().name.." ] at EXIT, trying to joining world again @everyone")
+        local count = 0
+        while getBot():getCurrentWorld() ~= world do
+            getBot():sendPacket("action|join_request\nname|"..world.."\ninvitedWorld|0",3)
+            sleep(delaywarp)
+            if getBot():getCurrentWorld() ~= world then 
+                count = count + 1
+                if count > 5 then
+                    setting.botinfo("[ "..getBot():getLocal().name.." ] Failed to joining world again, terminated script @everyone")
+                    return error()
+                end
+            end
+        end
+        if id ~= "" then
+            local stucks = 0
+            while getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32)).fg == 6 do
+                getBot():sendPacket("action|join_request\nname|" ..world.."|"..id.."\ninvitedWorld|0", 3)
+                sleep(delaywarp)
+                if stucks > 3 then
+                    setting.botinfo("[ "..getBot():getLocal().name.." ] Failed to reconnecting bot, stuck at white door. Terminated script @everyone")
+                    return error()
+                end
+            end
+        end
+        if x and y then
+            while math.floor(getBot():getLocal().pos.x/32) ~= x or math.floor(getBot():getLocal().pos.x/32) ~= y do
+                setting.u(x,y)
+                sleep(150)
+            end
+        end
+        setting.botinfo("[ "..getBot():getLocal().name.." ] success to joining world @everyone")
+    end
+    if getBot():getEnetStatus() ~= Connected then
+        setting.botinfo("[ "..getBot():getLocal().name.." ] status is "..setting.getStatusBot().." @everyone")
+        while getBot():getEnetStatus() ~= Connected do
+            getBot():reConnect()
+            sleep(delayreconnect)
+            if getBot():getEnetStatus() == Suspended or getBot():getEnetStatus() == Banned then
+                setting.botinfo("[ "..getBot():getLocal().name.." ] status is "..setting.getStatusBot()..", removing bot @everyone")
+                if not botBackup then
+                    if removingbot then
+                        getBot():remove()
+                        sleep(2000)
+                    end
+                    return error()
+                end
+            end
+        end
+        local counts = 0
+        while getBot():getCurrentWorld() ~= world do
+            getBot():sendPacket("action|join_request\nname|"..world.."\ninvitedWorld|0",3)
+            sleep(delaywarp)
+            if getBot():getCurrentWorld() ~= world then 
+                counts = counts + 1
+                if counts > 5 then
+                    setting.botinfo("[ "..getBot():getLocal().name.." ] Failed to joining world again, terminated script @everyone")
+                    return error()
+                end
+            end
+        end
+        if id ~= "" then
+            local stucks = 0
+            while getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32)).fg == 6 do
+                getBot():sendPacket("action|join_request\nname|" ..world.."|"..id.."\ninvitedWorld|0", 3)
+                sleep(delaywarp)
+                if stucks > 3 then
+                    setting.botinfo("[ "..getBot():getLocal().name.." ] Failed to reconnecting bot, stuck at white door. Terminated script @everyone")
+                    return error()
+                end
+            end
+        end
+        if x and y then
+            while math.floor(getBot():getLocal().pos.x/32) ~= x or math.floor(getBot():getLocal().pos.x/32) ~= y do
+                setting.u(x,y)
+                sleep(150)
+            end
+        end
+        setting.botinfo("[ "..getBot():getLocal().name.." ] status is "..setting.getStatusBot().." @everyone")
+    end
+    if getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32)).fg == 6 then
+        setting.botinfo("[ "..getBot():getLocal().name.." ] Stuck at white door ! @everyone")
+        if id ~= "" then
+            local stucks = 0
+            while getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32)).fg == 6 do
+                getBot():sendPacket("action|join_request\nname|" ..world.."|"..id.."\ninvitedWorld|0", 3)
+                sleep(delaywarp)
+                if stucks > 3 then
+                    setting.botinfo("[ "..getBot():getLocal().name.." ] Failed to reconnecting bot, stuck at white door. Terminated script @everyone")
+                    return error()
+                end
+            end
+        end
+        if x and y then
+            while math.floor(getBot():getLocal().pos.x/32) ~= x or math.floor(getBot():getLocal().pos.x/32) ~= y do
+                setting.u(x,y)
+                sleep(150)
+            end
+        end
+        setting.botinfo("[ "..getBot():getLocal().name.." ] Already back to pos ! @everyone")
+    end
+    for _, idx in pairs(transcedence) do
+        if getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32)).fg == idx then
+            setting.botinfo("[ "..getBot():getLocal().name.." ] Stuck! disconnecting bot @everyone")
+            log("["..indexbot.."]Bot are stuck! Disconnecting bots")
+            getBot():disconnect()
+            sleep(3000)
+            while getBot():getEnetStatus() ~= Connected do
+                getBot():reConnect()
+                sleep(delayreconnect)
+                if getBot():getEnetStatus() == Suspended or getBot():getEnetStatus() == Banned then
+                    setting.botinfo("[ "..getBot():getLocal().name.." ] status is "..setting.getStatusBot()..", removing bot @everyone")
+                    if not botBackup then
+                        if removingbot then
+                            getBot():remove()
+                            sleep(2000)
+                        end
+                        return error()
+                    end
+                end
+            end
+            local stuck = 0
+            if id ~= "" then
+                while getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32)).fg == 6 do
+                    getBot():sendPacket("action|join_request\nname|" ..world.."|"..id.."\ninvitedWorld|0", 3)
+                    sleep(delaywarp)
+                    if stuck > 3 then
+                        setting.botinfo("[ "..getBot():getLocal().name.." ] Failed to reconnecting bot, stuck at white door. Terminated script @everyone")
+                    end
+                end
+            end
+            if x and y then
+                while math.floor(getBot():getLocal().pos.x/32) ~= x or math.floor(getBot():getLocal().pos.x/32) ~= y do
+                    setting.u(x,y)
+                    sleep(150)
+                end
+            end
+            setting.botinfo("[ "..getBot():getLocal().name.." ] Already back to pos ! @everyone")
+            log("["..indexbot.."][ "..getBot():getLocal().name.." ] Already back to pos ! @everyone")
+        end
+    end
+end
+
+setting.warp = function(world,door)
+    world = world:lower()
+    door = door or ""
+    if getBot():getCurrentWorld() ~= world then
+        local count = 0
+        while getBot():getCurrentWorld() ~= world and not nuked do
+            while getBot():getEnetStatus() ~= Connected do
+                getBot():reConnect()
+                sleep(delayreconnect)
+                if getBot():getEnetStatus() == Suspended or getBot():getEnetStatus() == Banned then
+                    if not botBackup then
+                        if removingbot then
+                            getBot():remove()
+                            sleep(2000)
+                        end
+                        return error()
+                    end
+                end
+            end
+            getBot():sendPacket("action|join_request\nname|"..world.."|"..door.."\ninvitedWorld|0",3)
+            count = count + 1
+            if count >= 10 then
+                nuked = true
+            end
+            sleep(delaywarp)
+        end
+    end
+    if getBot():getCurrentWorld() == world then
+        if door ~= "" then
+            local stuck = 0
+            while getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32)).fg == 6 and not wrong do
+                while getBot():getEnetStatus() ~= Connected do
+                    getBot():reConnect()
+                    sleep(delayreconnect)
+                    if getBot():getEnetStatus() ~= Suspended or getBot():getEnetStatus() ~= Banned then
+                        if not botBackup then
+                            if removingbot then
+                                getBot():remove()
+                                sleep(2000)
+                            end
+                            return error()
+                        end
+                    end
+                end
+                getBot():sendPacket("action|join_request\nname|"..world.."|"..door.."\ninvitedWorld|0",3)
+                sleep(delaywarp)
+                stuck = stuck + 1
+                if stuck == 5 then
+                    wrong = true
+                end
+            end
+        end
+        for idx, tile in ipairs(getBot():getTiles()) do
+            if tile.fg ~= 0 then
+                if getBot():checkFlag(tile.x, tile.y, flagType.FIRE) then
+                    fire = true
+                end
+            end
+        end
+    end
+end
+
+setting.buying = function()
+    log("["..indexbot.."]Buying packs")
+    if getBot():getLocal().gems >= mingems then
+        if upbackpack then
+            while getBot():getLocal().slot < 36 do
+                getBot():sendPacket("action|buy\nitem|upgrade_backpack",2)
+                sleep(4000)
+            end
+        end
+        while getBot():getLocal().gems >= pricepack do
+            getBot():sendPacket("action|buy\nitem|"..debug,2)
+            sleep(4000)
+            if setting.n(packList[1]) >= 200 then
+                break
+            end
+        end
+    end
+end
+
+setting.joinworld = function()
+    for _, world in pairs(worldclearhistory) do
+        ::BACK::
+        log("["..indexbot.."]Clearing history")
+        setting.warp(world,"")
+        setting.wordsrandom()
+        setting.v(1,0)
+        sleep(250)
+        setting.reconnect(world,"")
+        if not nuked then
+        else
+            nuked = false
+            sleep(5000)
+            log("["..indexbot.."]World clearing history has nuked or level higher!!, change ur world history list")
+            setting.botinfo("World clearing history has nuked or level higher!!, change ur world history list. SC Terminated @everyone")
+            return error()
+        end
+    end
+end
+
+
+setting.takepickaxe = function()
+    ::BACK::
+    world = setting.split(worldpickaxe[index],"[^:]+")[1]
+    door = setting.split(worldpickaxe[index],"[^:]+")[2]
+    log("["..indexbot.."]Take pickaxe")
+    setting.warp(world,door)
+    setting.wordsrandom()
+    if not nuked then
+        if not wrong then
+            if setting.n(98) == 0 then
+                for _, obj in pairs(getBot():getObjects()) do
+                    if obj.id == 98 then
+                        setting.u(math.floor(obj.pos.x / 32),math.floor(obj.pos.y / 32))
+                        sleep(1000)
+                        setting.g(2)
+                        sleep(1000)
+                        setting.reconnect(world,door,math.floor(obj.pos.x / 32),math.floor(obj.pos.y / 32))
+                    end
+                    if setting.n(98) > 0  then
+                        setting.h(98)
+                        sleep(500)
+                        setting.v(-1,0)
+                        sleep(1000)
+                        setting.k(98,setting.n(98) - 1)
+                        sleep(1000)
+                        break
+                    end
+                end
+            end
+        else
+            wrong = false
+            sleep(5000)
+            log("["..indexbot.."]Id door world take support items is wrong, check ur id door !!")
+            setting.botinfo("Id door world take support items is wrong, check ur id door !, terminated script @everyone")
+            return error()
+        end
+    else
+        nuked = false
+        sleep(5000)
+        log("["..indexbot.."]World take support items is nuked or level higher, check ur world!!")
+        setting.botinfo("World take support items is nuked or level higher, check ur world !, terminated script @everyone")
+        return error()
+    end
+end
+
+setting.support = function()
+    ::BACK::
+    log("["..indexbot.."]Take support items")
+    world = setting.split(worlditemtowear[index],"[^:]+")[1]
+    door = setting.split(worlditemtowear[index],"[^:]+")[2]
+    setting.warp(world,door)
+    setting.wordsrandom()
+    setting.webhookinfo()
+    if not nuked then
+        if not wrong then
+            if setting.n(iditemtowear) == 0 and setting.itemFloat(iditemtowear) >= itemkeep then
+                for _, obj in pairs(getBot():getObjects()) do
+                    if obj.id == iditemtowear then
+                        setting.u(math.floor(obj.pos.x / 32),math.floor(obj.pos.y / 32))
+                        sleep(1000)
+                        setting.g(2,iditemtowear)
+                        sleep(1000)
+                        if setting.n(iditemtowear) > 0  then
+                            setting.v(-1,0)
+                            sleep(500)
+                            setting.h(iditemtowear)
+                            sleep(500)
+                            setting.k(iditemtowear,setting.n(iditemtowear) - itemkeep)
+                            sleep(500)
+                            log("["..indexbot.."][ "..getBot():getLocal().name.." ] Success take and wear the support items!")
+                            setting.botinfo("[ "..getBot():getLocal().name.." ] Success take and wear the support items!")
+                            break
+                        end
+                    end
+                end
+            else
+                log("["..indexbot.."]Support item is empty, Drop the support item right now!")
+                setting.botinfo("Support item is empty, Drop the support item right now! @everyone")
+            end
+        else
+            wrong = false
+            sleep(5000)
+            log("["..indexbot.."]Id door world take support items is wrong, check ur id door!")
+            setting.botinfo("Id door world take support items is wrong, check ur id door! @everyone")
+            return error()
+        end
+    else
+        nuked = false
+        sleep(5000)
+        log("["..indexbot.."]World take support items is nuked, check ur world!")
+        setting.botinfo("World take support items is nuked, check ur world! @everyone")
+        return error()
+    end
+end
+
+setting.storingevents = function()
+    for i = setting.event , #worldevent do
+        ::Here::
+        log("["..indexbot.."]Dropping events")
+        world = worldevent[i]
+        setting.warp(world,doorworldevent)
+        setting.wordsrandom()
+        setting.webhookinfo()
+        if not nuked then
+            if not wrong then
+                if setting.itemFloat(eventList[1]) >= limitevent then
+                    infoid[world] = "["..setting.itemFloat(eventList[1]).."] LIMIT !!!"
+                    setting.botinfo("Events storage : [ "..world.." ] has reached limit, skipped world @everyone")
+                    log("["..indexbot.."]Events storage : [ "..world.." ] has reached limit, skipped world")
+                    setting.event = setting.event + 1
+                    if setting.event > #worldevent then
+                        infoid[world] = "["..settingitemFloat(eventList[1]).."] LIMIT !!!"
+                        setting.botinfo("All events storage has reached limit, Removing bot : [ "..getBot():getLocal().name.." ] @everyone")
+                        log("["..indexbot.."]All events storage has reached limit, Removing bot : [ "..getBot():getLocal().name.." ]")
+                        if removingbot then
+                            getBot():remove()
+                            sleep(2000)
+                        end
+                        return error()
+                    end
+                    tileEvent = 0
+                else
+                    for y,pack in pairs(eventList) do
+                        for i,tile in pairs(getBot():getTiles()) do
+                            if separated then
+                                if tile.fg == 0 or tile.bg == 0 then
+                                    ::BACK::
+                                    setting.u(eventX + (tileEvent),eventY - (y - 1))
+                                    sleep(1000)
+                                    local count = 0
+                                    setting.reconnect(world,doorworldevent,eventX + (tileEvent),eventY - (y - 1))
+                                    if eventX + (tileEvent) >= 98 then
+                                        eventY = eventY - 1
+                                        tileEvent = 0
+                                    end
+                                    while setting.n(pack) > 0 do
+                                        setting.k(pack)
+                                        sleep(delaydrop)
+                                        setting.reconnect(world,doorworldevent,eventX + (tileEvent),eventY - (y - 1))
+                                        count = count + 1
+                                        if count >= 2 then
+                                            tileEvent = tileEvent + 1
+                                            goto BACK
+                                        end
+                                    end
+                                end
+                                if setting.n(pack) == 0 then
+                                    break
+                                end
+                            else
+                                if tile.fg == 0 or tile.bg == 0 then
+                                    ::BACK::
+                                    setting.u(eventX + (tileEvent),eventY)
+                                    sleep(1000)
+                                    local count = 0
+                                    setting.reconnect(world,doorworldevent,eventX + (tileEvent),eventY)
+                                    if eventX + (tileEvent) >= 98 then
+                                        eventY = eventY - 1
+                                        tileEvent = 0
+                                    end
+                                    while setting.n(pack) > 0 do
+                                        setting.k(pack)
+                                        sleep(delaydrop)
+                                        setting.reconnect(world,doorworldevent,eventX + (tileEvent),eventY)
+                                        count = count + 1
+                                        if count >= 2 then
+                                            tileEvent = tileEvent + 1
+                                            goto BACK
+                                        end
+                                    end
+                                end
+                                if setting.n(pack) == 0 then
+                                    break
+                                end
+                            end
+                        end
+                    end
+                    sleep(100)
+                    break
+                end
+            else
+                infoid[world] = "WRONG DOOR !!!"
+                sleep(1000)
+                wrong = false
+                sleep(5000)
+                log("["..indexbot.."][ "..world.." ] Id door events storage is wrong, check ur id door!")
+                setting.botinfo("[ "..world.." ] Id door events storage is wrong, check ur id door! @everyone")
+                setting.event = setting.event + 1
+                if setting.event > #worldevent then
+                    log("["..indexbot.."]All events storage has reached limit")
+                    setting.botinfo("All events storage has reached limit! Removing bot : [ "..getBot():getLocal().name.." ] @everyone")
+                    if removingbot then
+                        getBot():remove()
+                        sleep(2000)
+                    end
+                    return error()
+                end
+                tileEvent = 0
+            end
+        else
+            infoid[world] = "NUKED !!!"
+            sleep(1000)
+            nuked = false
+            sleep(5000)
+            log("["..indexbot.."][ "..world.." ] event Storage is NUKED, check ur storage!")
+            setting.botinfo("[ "..world.." ] event Storage is NUKED, check ur storage! @everyone")
+            setting.event = setting.event + 1
+            if setting.event > #worldevent then
+                log("["..indexbot.."]All events storage has reached limit!")
+                setting.botinfo("All events storage has reached limit! Removing bot : [ "..getBot():getLocal().name.." ] @everyone")
+                if removingbot then
+                    getBot():remove()
+                    sleep(2000)
+                end
+                return error()
+            end
+            tileEvent = 0
+        end
+    end
+    infoid[world] = "["..setting.itemFloat(eventList[1]).."]"
+    setting.storageinfo()
+    if clearhistory then
+        setting.joinworld()
+    end
+end
+
+setting.storingpacks = function()
+    for i = setting.pack , #worldpack do
+        ::Here::
+        log("["..indexbot.."]Dropping packs")
+        world = worldpack[i]
+        setting.warp(world,doorworldpack)
+        setting.wordsrandom()
+        setting.webhookinfo()
+        if not nuked then
+            if not wrong then
+                if setting.itemFloat(packList[1]) >= limitpack then
+                    infoid[world] = "["..setting.itemFloat(packList[1]).."] LIMIT !!!"
+                    setting.botinfo("Packs storage : [ "..world.." ] has reached limit, skipped world @everyone")
+                    log("["..indexbot.."]Packs storage : [ "..world.." ] has reached limit, skipped world")
+                    setting.pack = setting.pack + 1
+                    if setting.pack > #worldpack then
+                        infoid[world] = "["..setting.itemFloat(packList[1]).."] LIMIT !!!"
+                        setting.botinfo("All packs storage has reached limit, Removing bot : [ "..getBot():getLocal().name.." ] @everyone")
+                        log("["..indexbot.."]All packs storage has reached limit, Removing bot : [ "..getBot():getLocal().name.." ]")
+                        if removingbot then
+                            getBot():remove()
+                            sleep(2000)
+                        end
+                        return error()
+                    end
+                    tilePack = 0
+                else
+                    for y,pack in pairs(packList) do
+                        for i,tile in pairs(getBot():getTiles()) do
+                            if separated then
+                                if tile.fg == 0 or tile.bg == 0 then
+                                    ::BACK::
+                                    setting.u(packX + (tilePack),packY - (y-1))
+                                    sleep(1000)
+                                    local count = 0
+                                    setting.reconnect(world,doorworldpack,packX + (tilePack),packY - (y-1))
+                                    if packX + (tilePack) >= 98 then
+                                        packY = packY - 1
+                                        tilePack = 0
+                                    end
+                                    while setting.n(pack) > 0 do
+                                        setting.k(pack)
+                                        sleep(delaydrop)
+                                        setting.reconnect(world,doorworldpack,packX + (tilePack),packY - (y-1))
+                                        count = count + 1
+                                        if count >= 2 then
+                                            tilePack = tilePack + 1
+                                            goto BACK
+                                        end
+                                    end
+                                end
+                                if setting.n(pack) == 0 then
+                                    break
+                                end
+                            else
+                                if tile.fg == 0 or tile.bg == 0 then
+                                    ::BACK::
+                                    setting.u(packX + (tilePack),packY)
+                                    sleep(1000)
+                                    local count = 0
+                                    setting.reconnect(world,doorworldpack,packX + (tilePack),packY)
+                                    if packX + (tilePack) >= 98 then
+                                        packY = packY - 1
+                                        tilePack = 0
+                                    end
+                                    while setting.n(pack) > 0 do
+                                        setting.k(pack)
+                                        sleep(delaydrop)
+                                        setting.reconnect(world,doorworldpack,packX + (tilePack),packY)
+                                        count = count + 1
+                                        if count >= 2 then
+                                            tilePack = tilePack + 1
+                                            goto BACK
+                                        end
+                                    end
+                                end
+                                if setting.n(pack) == 0 then
+                                    break
+                                end
+                            end
+                        end
+                    end
+                    sleep(100)
+                    break
+                end
+            else
+                infoid[world] = "WRONG DOOR !!!"
+                sleep(1000)
+                wrong = false
+                sleep(5000)
+                log("["..indexbot.."][ "..world.." ] Id door packs storage is wrong, check ur id door!")
+                setting.botinfo("[ "..world.." ] Id door packs storage is wrong, check ur id door! @everyone")
+                setting.pack = setting.pack + 1
+                if setting.pack > #worldpack then
+                    log("["..indexbot.."]All packs storage has reached limit")
+                    setting.botinfo("All packs storage has reached limit! Removing bot : [ "..getBot():getLocal().name.." ] @everyone")
+                    if removingbot then
+                        getBot():remove()
+                        sleep(2000)
+                    end
+                    return error()
+                end
+                tilePack = 0
+            end
+        else
+            infoid[world] = "NUKED !!!"
+            sleep(1000)
+            nuked = false
+            sleep(5000)
+            log("["..indexbot.."][ "..world.." ] packs Storage is NUKED, check ur storage!")
+            setting.botinfo("[ "..world.." ] packs Storage is NUKED, check ur storage! @everyone")
+            setting.pack = setting.pack + 1
+            if setting.pack > #worldpack then
+                log("["..indexbot.."]All packs storage has reached limit!")
+                setting.botinfo("All packs storage has reached limit! Removing bot : [ "..getBot():getLocal().name.." ] @everyone")
+                if removingbot then
+                    getBot():remove()
+                    sleep(2000)
+                end
+                return error()
+            end
+            tilePack = 0
+        end
+    end
+    infoid[world] = "["..setting.itemFloat(packList[1]).."]"
+    setting.storageinfo()
+    if clearhistory then
+        setting.joinworld()
+    end
+end
+
+setting.storingseeds = function()
+    for i = setting.seed , #worldseed do
+        ::Here::
+        world = worldseed[i]
+        log("["..indexbot.."]Dropping seeds")
+        setting.warp(world,doorworldseed)
+        setting.wordsrandom()
+        setting.webhookinfo()
+        if not nuked then
+            if not wrong then
+                if setting.itemFloat(seed) >= limitseed then
+                    infoid[world] = "["..setting.itemFloat(seed).."] LIMIT !!!"
+                    setting.botinfo("Seeds storage : [ "..world.." ] has reached limit, skipped world @everyone")
+                    log("["..indexbot.."]Seeds storage : [ "..world.." ] has reached limit, skipped world")
+                    setting.seed = setting.seed + 1
+                    if setting.seed > #worldseed then
+                        infoid[world] = "["..setting.itemFloat(seed).."] LIMIT !!!"
+                        setting.botinfo("All seeds storage has reached limit, Removing bot : [ "..getBot():getLocal().name.." ] @everyone")
+                        log("["..indexbot.."]All seeds storage has reached limit, Removing bot : [ "..getBot():getLocal().name.." ] @everyone")
+                        if removingbot then
+                            getBot():remove()
+                            sleep(2000)
+                        end
+                        return error()
+                    end
+                    tileSeed = 0
+                else
+                    for i,tile in pairs(getBot():getTiles()) do
+                        if tile.fg == 0 or tile.bg == 0 then
+                            ::BACK::
+                            setting.u(seedX + (tileSeed),seedY)
+                            sleep(1000)
+                            local count = 0
+                            setting.reconnect(world,doorworldseed,seedX + (tileSeed),seedY)
+                            if seedX + (tileSeed) >= 98 then
+                                seedY = seedY - 1
+                                tileSeed = 0
+                            end
+                            while setting.n(seed) > 0 do
+                                setting.k(seed)
+                                sleep(delaydrop)
+                                setting.reconnect(world,doorworldseed,seedX + (tileSeed),seedY)
+                                count = count + 1
+                                if count >= 2 then
+                                    tileSeed = tileSeed + 1
+                                    goto BACK
+                                end
+                            end
+                        end
+                        if setting.n(seed) == 0 then
+                            break
+                        end
+                    end
+                    sleep(100)
+                    break
+                end
+            else
+                infoid[world] = "WRONG DOOR !!!"
+                wrong = false
+                sleep(5000)
+                log("["..indexbot.."][ "..world.." ] Id door seeds storage is wrong, check ur id door!")
+                setting.botinfo("[ "..world.." ] Id door seeds storage is wrong, check ur id door! @everyone")
+                setting.seed = setting.seed + 1
+                if setting.seed > #worldseed then
+                    log("["..indexbot.."]All seeds storage has reached limit")
+                    setting.botinfo("All seeds storage has reached limit @everyone")
+                    if removingbot then
+                        getBot():remove()
+                        sleep(2000)
+                    end
+                    return error()
+                end
+                tileSeed = 0
+            end
+        else
+            infoid[world] = "NUKED !!!"
+            nuked = false
+            sleep(5000)
+            log("["..indexbot.."][ "..world.." ] seeds Storage is NUKED, check ur storage!")
+            setting.botinfo("[ "..world.." ] seeds Storage is NUKED, check ur storage! @everyone")
+            setting.seed = setting.seed + 1
+            if setting.seed > #worldseed then
+                log("["..indexbot.."]All seeds storage has reached limit!")
+                setting.botinfo("All seeds storage has reached limit! @everyone")
+                if removingbot then
+                    getBot():remove()
+                    sleep(2000)
+                end
+                return error()
+            end
+            tileSeed = 0
+        end
+    end
+    infoid[world] = "["..setting.itemFloat(seed).."]"
+    setting.storageinfo()
+    if clearhistory then
+        setting.joinworld()
+    end
+end
+
+local network = math.random(5,95)
+setting.rotate = function(custom,static,blockid)
+    if not pnbother then
+        ::BACK::
+        log("["..indexbot.."]PNB")
+        while math.floor(getBot():getLocal().pos.x/32) ~= network or math.floor(getBot():getLocal().pos.y/32) ~= 1 do
+            setting.u(network,1)
+            sleep(500)
+            setting.reconnect(custom,static,network,1)
+        end
+        if pnbtile == 1 then
+            while setting.n(blockid) >= pnbtile do
+                if getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32) + tileY).bg ~= 0 or getBot():getTile(math.floor(getBot():getLocal().pos.x/32), math.floor(getBot():getLocal().pos.y/32) + tileY).fg ~= 0 then
+                    setting.p(0,tileY)
+                    sleep(delaypunch)
+                    setting.reconnect(custom,static,math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32))
+                end
+                if getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32) + tileY).bg == 0 or getBot():getTile(math.floor(getBot():getLocal().pos.x/32), math.floor(getBot():getLocal().pos.y/32) + tileY).fg == 0 then
+                    setting.t(blockid,0,tileY)
+                    sleep(delayplace)
+                    setting.reconnect(custom,static,math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32))
+                end
+                setting.g(2)
+                sleep(30)
+                if getBot():getLocal().gems >= mingems and buypack then
+                    setting.buying()
+                    setting.storingpacks()
+                    log("["..indexbot.."]Pnb")
+                    setting.warp(custom,static)
+                    setting.wordsrandom()
+                    goto BACK
+                end
+            end
+        else
+            while setting.n(blockid) >= pnbtile do
+                while setting.placeitem(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32)) do
+                    for _,i in pairs(tilebreak) do
+                        if getBot():getTile(math.floor(getBot():getLocal().pos.x/32) + i,math.floor(getBot():getLocal().pos.y/32) + tileY).fg == 0 and getBot():getTile(math.floor(getBot():getLocal().pos.x/32) + i,math.floor(getBot():getLocal().pos.y/32) + tileY).bg == 0 then
+                            setting.t(blockid,i,tileY)
+                            sleep(delayplace)
+                            setting.reconnect(custom,static,math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32))
+                        end
+                    end
+                end
+                while setting.punchitem(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32)) do
+                    for _,i in pairs(tilebreak) do
+                        if getBot():getTile(math.floor(getBot():getLocal().pos.x/32) + i,math.floor(getBot():getLocal().pos.y/32) + tileY).fg ~= 0 or getBot():getTile(math.floor(getBot():getLocal().pos.x/32) + i,math.floor(getBot():getLocal().pos.y/32) + tileY).bg ~= 0 then
+                            setting.p(i,tileY)
+                            sleep(delaypunch)
+                            setting.reconnect(custom,static,math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32))
+                        end
+                    end
+                end
+                setting.g(3)
+                sleep(30)
+                if getBot():getLocal().gems >= mingems and buypack then
+                    setting.buying()
+                    setting.storingpacks()
+                    log("["..indexbot.."]Pnb")
+                    setting.warp(custom,static)
+                    setting.wordsrandom()
+                    setting.webhookinfo()
+                    goto BACK
+                end
+            end
+        end
+    else
+        ::BACK::
+        log("["..indexbot.."]PNB")
+        setting.warp(find,"")
+        setting.wordsrandom()
+        setting.webhookinfo()
+        if not nuked then
+            while math.floor(getBot():getLocal().pos.x/32) ~= posX or math.floor(getBot():getLocal().pos.y/32) ~= posY do
+                setting.u(posX,posY)
+                sleep(150)
+                setting.reconnect(find,"",posX,posY)
+            end
+            if pnbtile == 1 then
+                while setting.n(blockid) >= pnbtile do
+                    if getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32) + tileY).bg ~= 0 or getBot():getTile(math.floor(getBot():getLocal().pos.x/32), math.floor(getBot():getLocal().pos.y/32) + tileY).fg ~= 0 then
+                        setting.p(0,tileY)
+                        sleep(delaypunch)
+                        setting.reconnect(find,"",math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32))
+                    end
+                    if getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32) + tileY).bg == 0 or getBot():getTile(math.floor(getBot():getLocal().pos.x/32), math.floor(getBot():getLocal().pos.y/32) + tileY).fg == 0 then
+                        setting.t(blockid,0,tileY)
+                        sleep(delayplace)
+                        setting.reconnect(find,"",math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32))
+                    end
+                    setting.g(2)
+                    sleep(30)
+                    if getBot():getLocal().gems >= mingems and buypack then
+                        setting.buying()
+                        setting.storingpacks()
+                        goto BACK
+                    end
+                end
+            else
+                while setting.n(blockid) >= pnbtile do
+                    while setting.placeitem(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32)) do
+                        for _,i in pairs(tilebreak) do
+                            if getBot():getTile(math.floor(getBot():getLocal().pos.x/32) + i,math.floor(getBot():getLocal().pos.y/32) + tileY).fg == 0 and getBot():getTile(math.floor(getBot():getLocal().pos.x/32) + i,math.floor(getBot():getLocal().pos.y/32) + tileY).bg == 0 then
+                                setting.t(blockid,i,tileY)
+                                sleep(delayplace)
+                                setting.reconnect(find,"",math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32))
+                            end
+                        end
+                    end
+                    while setting.punchitem(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32)) do
+                        for _,i in pairs(tilebreak) do
+                            if getBot():getTile(math.floor(getBot():getLocal().pos.x/32) + i,math.floor(getBot():getLocal().pos.y/32) + tileY).fg ~= 0 or getBot():getTile(math.floor(getBot():getLocal().pos.x/32) + i,math.floor(getBot():getLocal().pos.y/32) + tileY).bg ~= 0 then
+                                setting.p(i,tileY)
+                                sleep(delaypunch)
+                                setting.reconnect(find,"",math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32))
+                            end
+                        end
+                    end
+                    setting.g(3)
+                    sleep(30)
+                    if getBot():getLocal().gems >= mingems and buypack then
+                        setting.buying()
+                        setting.storingpacks()
+                        goto BACK
+                    end
+                end
+            end
+        else
+            nuked = false
+            sleep(5000)
+            setting.botinfo("World : [ "..find.." ] is NUKED @everyone")
+            log("["..indexbot.."]World pnb : [ "..find.." ] is NUKED, terminated script")
+            return error()
+        end
+    end
+    setting.recycles()
+end
+
+setting.recycles = function()
+    for i , list in ipairs(trashList) do
+        if setting.n(list) > amount then
+            getBot():sendPacket("action|trash\n|itemID|" .. list,2)
+            sleep(4000)
+            getBot():sendPacket("action|dialog_return\ndialog_name|trash_item\nitemID|" .. list .. "|\ncount|" .. setting.n(list),2)
+            sleep(4000)
+        end
+    end
+end
+
+setting.rechecking = function(threads)
+    log("["..indexbot.."]Rechecking")
+    ::BACK::
+    for _, tile in pairs(getBot():getTiles()) do
+        if getBot():canHarvest(tile.x,tile.y) and tile.fg == seed then
+            setting.u(tile.x,tile.y)
+            setting.reconnect(threads,doorfarm,tile.x,tile.y)
+            while getBot():canHarvest(tile.x,tile.y) do
+                setting.p(0,0)
+                sleep(delayharvest)
+                setting.reconnect(threads,doorfarm,tile.x,tile.y)
+            end
+            if not ignoregems then
+                setting.g(range)
+            end
+            sleep(30)
+        end
+        if setting.n(iditemtowear) == 0 then
+            if itemtowear then
+                setting.support()
+                log("["..indexbot.."]Rechecking")
+                setting.warp(threads,doorfarm)
+                setting.wordsrandom()
+                setting.webhookinfo()
+            end
+        end
+        if setting.n(block) > 180 then
+            if pnbother then
+                setting.rotate(threads,doorfarm,block)
+                log("["..indexbot.."]Rechecking")
+                setting.warp(threads,doorfarm)
+                setting.wordsrandom()
+                setting.webhookinfo()
+            else
+                setting.rotate(threads,doorfarm,block)
+            end
+        end
+        if setting.n(eventList[1]) > amountevent then
+            setting.storingevents()
+            log("["..indexbot.."]Rechecking")
+            setting.warp(threads,doorfarm)
+            setting.wordsrandom()
+            setting.webhookinfo()
+        elseif setting.n(seed) >= amountseed then
+            if dontplant then
+                setting.storingseeds()
+                log("["..indexbot.."]Rechecking")
+                setting.warp(threads,doorfarm)
+                setting.wordsrandom()
+                setting.webhookinfo()
+            else
+                setting.plant(threads,doorfarm,seed)
+                if setting.n(seed) >= amountseed then
+                    setting.storingseeds()
+                    log("["..indexbot.."]Harvesting")
+                    setting.warp(threads,doorfarm)
+                    setting.wordsrandom()
+                    setting.webhookinfo()
+                end
+                goto BACK
+            end
+        elseif getBot():getLocal().gems > mingems and buypack then
+            setting.buying()
+            setting.storingpacks()
+            log("["..indexbot.."]Rechecking")
+            setting.warp(threads,doorfarm)
+            setting.wordsrandom()
+            setting.webhookinfo()
+        end
+    end
+    for _, obj in pairs(getBot():getObjects()) do
+        if obj.id == block then
+            setting.u(math.floor(obj.pos.x / 32), math.floor(obj.pos.y / 32))
+            sleep(100)
+            setting.reconnect(threads,doorfarm,math.floor(obj.pos.x / 32), math.floor(obj.pos.y / 32))
+            if getBot():isInside(math.floor(obj.pos.x / 32), math.floor(obj.pos.y / 32),range) then
+                setting.g(2)
+                sleep(100)
+                setting.reconnect(threads,doorfarm,math.floor(obj.pos.x / 32), math.floor(obj.pos.y / 32))
+            end
+        end
+        if setting.n(block) > 180 then
+            if pnbother then
+                setting.rotate(threads,doorfarm,block)
+                log("["..indexbot.."]Rechecking")
+                setting.warp(threads,doorfarm)
+                setting.wordsrandom()
+                setting.webhookinfo()
+            else
+                setting.rotate(threads,doorfarm,block)
+            end
+        end
+        if setting.n(eventList[1]) > amountevent then
+            setting.storingevents()
+            log("["..indexbot.."]Rechecking")
+            setting.warp(threads,doorfarm)
+            setting.wordsrandom()
+            setting.webhookinfo()
+        elseif setting.n(seed) >= amountseed then
+            if dontplant then
+                setting.storingseeds()
+                log("["..indexbot.."]Rechecking")
+                setting.warp(threads,doorfarm)
+                setting.wordsrandom()
+                setting.webhookinfo()
+            else
+                setting.plant(threads,doorfarm,seed)
+                if setting.n(seed) >= amountseed then
+                    setting.storingseeds()
+                    log("["..indexbot.."]Harvesting")
+                    setting.warp(threads,doorfarm)
+                    setting.wordsrandom()
+                    setting.webhookinfo()
+                end
+                goto BACK
+            end
+        elseif getBot():getLocal().gems > mingems and buypack then
+            setting.buying()
+            setting.storingpacks()
+            log("["..indexbot.."]Rechecking")
+            setting.warp(threads,doorfarm)
+            setting.wordsrandom()
+            setting.webhookinfo()
+        end
+    end
+    if not dontplant then
+        tileA = 99
+        tileB = 0
+        tileC = -1
+        tileD = 0
+        for y = -1, 53 do
+            for x = tileA, tileB, tileC do
+                if getBot():getTile(x,y).fg == 0 and getBot():getTile(x,y).flags ~= 0 then
+                    if setting.n(seed) == 0 then
+                        break
+                    end
+                    setting.u(x,y)
+                    sleep(delayplant)
+                    setting.reconnect(threads,doorfarm,x,y)
+                    while getBot():getTile(x,y).fg ~= seed do
+                        setting.t(seed,0,0)
+                        sleep(delayplant)
+                        setting.reconnect(threads,doorfarm,x,y)
+                    end
+                end
+            end
+            if tileD == 1 then
+                if tileA == 0 then
+                    tileA = 99
+                    tileB = 0
+                    tileC = -1
+                    tileD = 0
+                elseif tileA == 99 then
+                    tileA = 0
+                    tileB = 99
+                    tileC = 1
+                    tileD = 0
+                end
+            elseif tileD == 0 then
+                tileD = tileD + 1
+            end
+        end
+        if setting.n(seed) >= amountseed then
+            setting.storingseeds()
+            log("["..indexbot.."]Rechecking")
+            setting.warp(threads,doorfarm)
+            setting.wordsrandom()
+            setting.webhookinfo()
+        end
+    end
+end
+
+setting.harvest = function(threads)
+    tileA = 99
+    tileB = 0
+    tileC = -1
+    tileD = 0
+    log("["..indexbot.."]Harvesting")
+    ::BACK::
+    for y = -1, 53 do
+        for x = tileA, tileB, tileC do
+            if getBot():canHarvest(x,y) and getBot():getTile(x,y).fg == seed then
+                if setting.n(block) > 180 then
+                    if pnbother then
+                        setting.rotate(threads,"",block)
+                        log("["..indexbot.."]Harvesting")
+                        setting.warp(threads,doorfarm)
+                        setting.wordsrandom()
+                        setting.webhookinfo()
+                        goto BACK
+                    else
+                        setting.rotate(threads,doorfarm,block)
+                        goto BACK
+                    end
+                end
+                if setting.n(iditemtowear) == 0 then
+                    if itemtowear then
+                        setting.support()
+                        log("["..indexbot.."]Harvesting")
+                        setting.warp(threads,doorfarm)
+                        setting.wordsrandom()
+                        setting.webhookinfo()
+                        goto BACK
+                    end
+                end
+                if setting.n(eventList[1]) > amountevent then
+                    setting.storingevents()
+                    log("["..indexbot.."]Harvesting")
+                    setting.warp(threads,doorfarm)
+                    setting.wordsrandom()
+                    setting.webhookinfo()
+                    goto BACK
+                elseif setting.n(seed) > amountseed then
+                    if dontplant then
+                        setting.storingseeds()
+                        log("["..indexbot.."]Harvesting")
+                        setting.warp(threads,doorfarm)
+                        setting.wordsrandom()
+                        setting.webhookinfo()
+                        goto BACK
+                    else
+                        setting.plant(threads,doorfarm,seed)
+                        if setting.n(seed) >= amountseed then
+                            setting.storingseeds()
+                            log("["..indexbot.."]Harvesting")
+                            setting.warp(threads,doorfarm)
+                            setting.wordsrandom()
+                            setting.webhookinfo()
+                        end
+                        goto BACK
+                    end
+                elseif getBot():getLocal().gems > mingems and buypack then
+                    setting.buying()
+                    setting.storingpacks()
+                    log("["..indexbot.."]Harvesting")
+                    setting.warp(threads,doorfarm)
+                    setting.wordsrandom()
+                    setting.webhookinfo()
+                    goto BACK
+                end
+                setting.u(x,y)
+                sleep(delayharvest)
+                setting.reconnect(threads,doorfarm,x,y)
+                if getBot():canHarvest(x,y) then
+                    setting.p(0,0)
+                    sleep(delayharvest)
+                    setting.reconnect(threads,doorfarm,x,y)
+                end
+                if not ignoregems then
+                    setting.g(range)
+                end
+                sleep(30)
+            end
+        end
+        if tileD == 1 then
+            if tileA == 0 then
+                tileA = 99
+                tileB = 0
+                tileC = -1
+                tileD = 0
+            elseif tileA == 99 then
+                tileA = 0
+                tileB = 99
+                tileC = 1
+                tileD = 0
+            end
+        elseif tileD == 0 then
+            tileD = tileD + 1
+        end
+    end
+end
+
+setting.levelingcek = function(params)
+    log("["..indexbot.."]Rechecking")
+    ::BACK::
+    for _, obj in pairs(getBot():getObjects()) do
+        if obj.id == idblockleveling then
+            setting.u(math.floor(obj.pos.x / 32), math.floor(obj.pos.y / 32))
+            sleep(100)
+            setting.reconnect(params,doorworldleveling,math.floor(obj.pos.x / 32), math.floor(obj.pos.y / 32))
+            if getBot():isInside(math.floor(obj.pos.x / 32), math.floor(obj.pos.y / 32),range) then
+                setting.g(2)
+                sleep(100)
+                setting.reconnect(params,doorworldleveling,math.floor(obj.pos.x / 32), math.floor(obj.pos.y / 32))
+            end
+        end
+        if setting.n(idblockleveling) > 180 then
+            if pnbother then
+                setting.rotate(params,"",idblockleveling)
+                log("["..indexbot.."]Rechecking")
+                setting.warp(params,doorworldleveling)
+                setting.wordsrandom()
+                setting.webhookinfo()
+            else
+                setting.rotate(params,doorworldleveling,idblockleveling)
+            end
+        end
+        if setting.n(eventList[1]) > amountevent then
+            setting.storingevents(params)
+            log("["..indexbot.."]Rechecking")
+            setting.warp(params,doorworldleveling)
+            setting.wordsrandom()
+            setting.webhookinfo()
+        elseif setting.n(idblockleveling+1) >= amountseed then
+            setting.plant(params,doorworldleveling,idblockleveling+1)
+            goto BACK
+        elseif getBot():getLocal().gems > mingems and buypack then
+            setting.buying()
+            setting.storingpacks()
+            log("["..indexbot.."]Rechecking")
+            setting.warp(params,doorworldleveling)
+            setting.wordsrandom()
+            setting.webhookinfo()
+        end
+    end
+    tileA = 99
+    tileB = 0
+    tileC = -1
+    tileD = 0
+    for y = -1, 53 do
+        for x = tileA, tileB, tileC do
+            if getBot():getTile(x,y).fg == 0 and getBot():getTile(x,y).flags ~= 0 then
+                if setting.n(idblockleveling+1) == 0 then
+                    break
+                end
+                setting.u(x,y)
+                sleep(delayplant)
+                setting.reconnect(params,doorworldleveling,x,y)
+                while getBot():getTile(x,y).fg ~= idblockleveling+1 do
+                    setting.t(idblockleveling+1,0,0)
+                    sleep(delayplant)
+                    setting.reconnect(params,doorworldleveling,x,y)
+                end
+            end
+        end
+        if tileD == 1 then
+            if tileA == 0 then
+                tileA = 99
+                tileB = 0
+                tileC = -1
+                tileD = 0
+            elseif tileA == 99 then
+                tileA = 0
+                tileB = 99
+                tileC = 1
+                tileD = 0
+            end
+        elseif tileD == 0 then
+            tileD = tileD + 1
+        end
+    end
+end
+
+setting.plant = function(custom,static,seedid)
+    tileA = 99
+    tileB = 0
+    tileC = -1
+    tileD = 0
+    log("["..indexbot.."]Planting")
+    for y = -1, 53 do
+        for x = tileA, tileB, tileC do
+            if getBot():getTile(x,y).fg == 0 and getBot():getTile(x,y).flags ~= 0 then
+                if setting.n(seedid) == 0 then
+                    break
+                end
+                setting.u(x,y)
+                sleep(delayplant)
+                setting.reconnect(custom,static,x,y)
+                if getBot():getTile(x,y).fg ~= seedid then
+                    setting.t(seedid,0,0)
+                    sleep(delayplant)
+                    setting.reconnect(custom,static,x,y)
+                end
+            end
+        end
+        if tileD == 1 then
+            if tileA == 0 then
+                tileA = 99
+                tileB = 0
+                tileC = -1
+                tileD = 0
+            elseif tileA == 99 then
+                tileA = 0
+                tileB = 99
+                tileC = 1
+                tileD = 0
+            end
+        elseif tileD == 0 then
+            tileD = tileD + 1
+        end
+    end
+end
+
+setting.levelings = function(params)
+    tileA = 99
+    tileB = 0
+    tileC = -1
+    tileD = 0
+    log("["..indexbot.."]Leveling")
+    ::BACK::
+    for y = -1, 53 do
+        for x = tileA, tileB, tileC do
+            if getBot():getTile(x,y).fg == idblockleveling+1 and getBot():canHarvest(x,y) then
+                if getBot():getLocal().level >= setmaxlvl then
+                    break
+                end
+                if setting.n(idblockleveling) > 180 then
+                    if pnbother then
+                        setting.rotate(params,"",idblockleveling)
+                        log("["..indexbot.."]Leveling")
+                        setting.warp(params,doorworldleveling)
+                        setting.wordsrandom()
+                        setting.webhookinfo()
+                        goto BACK
+                    else
+                        setting.rotate(params,doorworldleveling,idblockleveling)
+                        goto BACK
+                    end
+                end
+                if setting.n(idblockleveling+1) > amountseed then
+                    setting.plant(params,doorworldleveling,idblockleveling+1)
+                    log("["..indexbot.."]Leveling")
+                    goto BACK
+                elseif getBot():getLocal().gems > mingems and buypack then
+                    setting.buying()
+                    setting.storingpacks()
+                    log("["..indexbot.."]Leveling")
+                    setting.warp(params,doorworldleveling)
+                    setting.wordsrandom()
+                    setting.webhookinfo()
+                    goto BACK
+                end
+                setting.u(x,y)
+                sleep(delayharvest)
+                setting.reconnect(params,doorworldleveling,x,y)
+                if getBot():canHarvest(x,y) then
+                    setting.p(0,0)
+                    sleep(delayharvest)
+                    setting.reconnect(params,doorworldleveling,x,y)
+                end
+                if not ignoregems then
+                    if leveling then
+                        if getBot():getLocal().level >= setminlvl then
+                            setting.g(range)
+                        end
+                    end
+                end
+                sleep(30)
+            end
+        end
+        if tileD == 1 then
+            if tileA == 0 then
+                tileA = 99
+                tileB = 0
+                tileC = -1
+                tileD = 0
+            elseif tileA == 99 then
+                tileA = 0
+                tileB = 99
+                tileC = 1
+                tileD = 0
+            end
+        elseif tileD == 0 then
+            tileD = tileD + 1
+        end
+    end
+end
+
+setting.breakjammers = function()
+    for _, idx in pairs(sjam) do
+        log("["..indexbot.."]Take back jammer")
+        setting.warp(idx,"")
+        while getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32)).fg == 6 do
+            setting.v(1,0)
+            sleep(500)
+        end
+        setting.reconnect(idx,"")
+        if not nuked then
+            while getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32)-1).fg == 226 do
+                setting.p(0,-1)
+                sleep(delaypunch)
+                setting.reconnect(idx,"",math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32))
+            end
+        else
+            nuked = false
+            sleep(5000)
+            log("["..indexbot.."]World take back jammer has nuked!!")
+            setting.botinfo("World take back jammer has nuked!! SC Terminated @everyone")
+        end
+    end
+end
+
+setting.takejammer = function(threads)
+    ::BACK::
+    log("["..indexbot.."]Take jammers")
+    world = setting.split(worldjammer[index],"[^:]+")[1]
+    door = setting.split(worldjammer[index],"[^:]+")[2]
+    setting.warp(world,door)
+    setting.webhookinfo()
+    if not nuked then
+        if not wrong then
+            if setting.itemFloat(226) > 0 then
+                for _, obj in pairs(getBot():getObjects()) do
+                    if obj.id == 226 then
+                        setting.u(math.floor(obj.pos.x / 32),math.floor(obj.pos.y / 32))
+                        sleep(1000)
+                        setting.g(2)
+                        sleep(1000)
+                        setting.reconnect(world,door,math.floor(obj.pos.x / 32),math.floor(obj.pos.y / 32))
+                    end
+                    if setting.n(226) > 1 then
+                        setting.v(-1,0)
+                        sleep(1000)
+                        setting.k(226,setting.n(226) - 1)
+                        sleep(2000)
+                        break
+                    end
+                end
+            end
+        else
+            wrong = false
+            sleep(5000)
+            setting.botinfo("World to take jammers is wrong door id, terminated sc @everyone")
+            log("["..indexbot.."]World to take jammers is wrong door id, terminated sc")
+            error()
+        end
+    else
+        nuked = false
+        sleep(5000)
+        setting.botinfo("World to take jammers is NUKED, terminated sc @everyone")
+        log("["..indexbot.."]World to take jammers is NUKED, terminated sc")
+        error()
+    end
+end
+
+setting.placeall = function()
+    while getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32) - 1).fg ~= 226 do
+        setting.t(226,0,-1)
+        sleep(delayplace)
+        setting.reconnect(find,"")
+    end
+    sleep(1000)
+    if getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32) - 1).fg == 226 then
+        setting.p(0,-1)
+        sleep(delayplace)
+        setting.reconnect(find,"")
+    end
+    if setting.n(226) > 0 and getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32)- 1).fg == 226 then
+        setting.storingjammer()
+    end
+end
+
+setting.storingjammer = function()
+    ::BACK::
+    log("["..indexbot.."]Storing jammer")
+    world = setting.split(worldjammer[index],"[^:]+")[1]
+    door = setting.split(worldjammer[index],"[^:]+")[2]
+    setting.warp(world,door)
+    setting.webhookinfo()
+    if not nuked then
+        if not wrong then
+            for i,tile in pairs(getBot():getTiles()) do
+                if tile.fg == 0 or tile.bg == 0 then
+                    ::DROPS::
+                    setting.u(jammerX + (tileJammer),jammerY)
+                    sleep(1000)
+                    local count = 0
+                    setting.reconnect(world,door,jammerX + (tileJammer),jammerY)
+                    if jammerX + (tileJammer) >= 98 then
+                        jammerY = jammerY - 1
+                        tileJammer = 0
+                    end
+                    while setting.n(226) > 0 do
+                        setting.k(226)
+                        sleep(delaydrop)
+                        setting.reconnect(world,door,jammerX + (tileJammer),jammerY)
+                        count = count + 1
+                        if count >= 2 then
+                            tileJammer = tileJammer + 1
+                            goto DROPS
+                        end
+                    end
+                end
+                if setting.n(226) == 0 then
+                    break
+                end
+            end
+        else
+            wrong = false
+            sleep(5000)
+            setting.botinfo("World to storing jammers is wrong door id, terminated sc @everyone")
+            log("["..indexbot.."]World to storing jammers is wrong door id, terminated sc")
+            error()
+        end
+    else
+        nuked = false
+        sleep(5000)
+        setting.botinfo("World to storing jammers is NUKED, terminated sc @everyone")
+        log("["..indexbot.."]World to storing jammers is NUKED, terminated sc")
+        error()
+    end
+end
+
+setting.botswitchs = function()
+    if indexbot == 1 then
+        if proxy then
+            for idx, key in pairs(proxyList) do
+                local ip, port, user, pass = string.match(key,
+                    "([^:]+):([^:]+):([^:]+):([^:]+)")
+                ip = ip .. ":" .. port
+                Proxy = {
+                    HostName = ip,
+                    Username = user,
+                    Password = pass,
+                    Type = SOCKS5
+                }
+                addProxy(Proxy)
+            end
+        end
+        if botBackup then
+            for _, list in pairs(backupList) do
+                thread = setting.split(list,"[^"..symbol.."]+")[1]
+                num = setting.split(list,"[^"..symbol.."]+")[2]
+                setting.writeFile("BotSwitch",thread..":"..num)
+            end
+        end
+    end
+end
+
+setting.botswitchs()
+
+if ignoregems then
+    getBot():setBool("ignoreGem", true)
+end
+
+if setting.n(9640) > 0 then
+    ::SUCK::
+    setting.warp(getBot():getLocal().name,"")
+    setting.wordsrandom()
+    while getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32) - 1).fg ~= 9640 do
+        setting.t(9640,0,-1)
+        sleep(delayplace)
+    end
+    if setting.n(9640) > 0 then
+        goto SUCK
+    end
+end
+
+::Check::
+if setting.n(98) == 0 and pickaxe and getBot():getEnetStatus() == Connected then
+    setting.takepickaxe()
+    goto Check
+end
+
+if takebackjammer then
+    setting.breakjammers()
+    setting.storingjammer()
+    return error("Already taking jammer")
+end
+
+if pnbother then
+    ::HERE::
+    if setting.n(226) == 0 then
+        setting.takejammer()
+        goto HERE
+    else
+        log("["..indexbot.."]Generating worlds")
+        setting.botinfo("Bot : "..getBot():getLocal().name.." is generating a new world")
+        setting.warp(find,"")
+        setting.v(1,0)
+        sleep(500)
+        setting.reconnect(find,"")
+        if not nuked then
+            setting.placeall()
+            setting.botinfo("Bot : "..getBot():getLocal().name.." success generating a new world, the world name is : "..find.."")
+            setting.writeFile("jammer",'"'..find..'",')
+            if setting.n(226) > 0 then
+                goto HERE
+            end
+        else
+            nuked = false
+            sleep(5000)
+            log("["..indexbot.."]World generate is NUKED!, check ur world !!")
+            setting.botinfo("World generate is NUKED!, check ur world !! @everyone")
+            goto HERE
+        end
+    end
+end
+
+if leveling then
+    for idx, annount in ipairs(worldleveling) do
+        ::NED::
+        setting.storageinfo()
+        setting.warp(annount,doorworldleveling)
+        setting.wordsrandom()
+        setting.webhookinfo()
+        if not nuked then
+            if not wrong then
+                if not fire then
+                    setting.levelings(annount)
+                    setting.levelingcek(annount)
+                else
+                    fire = false
+                    sleep(2000)
+                    setting.writeFile("worldinfo","[ "..annount.." ] has burn")
+                    sleep(1000)
+                    log("["..indexbot.."]"..annount.." has burn")
+                    setting.botinfo("[ "..annount.." ] has burn, skipped world @everyone")
+                end
+            else
+                wrong = false
+                sleep(2000)
+                setting.writeFile("worldinfo","[ "..annount.." ] is wrong id")
+                sleep(1000)
+                log("["..indexbot.."]"..annount.." is wrong door id, skipped world")
+                setting.botinfo("[ "..annount.." ] is wrong door id, skipped world @everyone")
+            end
+        else
+            nuked = false
+            sleep(5000)
+            setting.writeFile("worldinfo","[ "..annount.." ] is NUKED !!")
+            sleep(1000)
+            log("["..indexbot.."]"..annount.." is NUKED!, check ur world !!")
+            setting.botinfo("[ "..annount.." ] is NUKED!, check ur world !! @everyone")
+        end
+    end
+end
+
+while true do
+    for _, value in ipairs(worlds) do
+        ::BACK::
+        setting.storageinfo()
+        setting.warp(value,doorfarm)
+        setting.wordsrandom()
+        setting.webhookinfo()
+        if not nuked then
+            if not wrong then
+                if not fire then
+                    setting.harvest(value)
+                    setting.rechecking(value)
+                else
+                    fire = false
+                    sleep(2000)
+                    setting.writeFile("worldinfo","[ "..value.." ] has burn")
+                    sleep(1000)
+                    log("["..indexbot.."]"..value.." has burn")
+                    setting.botinfo("[ "..value.." ] has burn, skipped world @everyone")
+                end
+            else
+                wrong = false
+                sleep(2000)
+                setting.writeFile("worldinfo","[ "..value.." ] is wrong id")
+                sleep(1000)
+                log("["..indexbot.."]"..value.." is wrong door id, skipped world")
+                setting.botinfo("[ "..value.." ] is wrong door id, skipped world @everyone")
+            end
+        else
+            nuked = false
+            sleep(5000)
+            setting.writeFile("worldinfo","[ "..value.." ] is NUKED !!")
+            sleep(1000)
+            log("["..indexbot.."]"..value.." is NUKED!, check ur world !!")
+            setting.botinfo("[ "..value.." ] is NUKED!, check ur world !! @everyone")
+        end
+    end
+    if not looping then
+        if setting.n(seed) > 0 then
+            setting.storingseeds()
+        end
+        if pnbother then
+            setting.warp(find,"")
+            while getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32)).fg == 6 do
+                setting.v(1,0)
+                sleep(500)
+            end
+            setting.reconnect(find,"")
+            while getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32)-1).fg == 226 do
+                setting.p(0,-1)
+                sleep(delaypunch)
+                setting.reconnect(find,"",math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32))
+            end
+        end
+        log("["..indexbot.."][ "..getBot():getLocal().name.." ] Already finished all world, Terminated script!")
+        setting.botinfo("[ "..getBot():getLocal().name.." ] Already finished all world, Terminated script! @everyone")
+        setting.warp(find,"")
+        setting.wordsrandom()
+        if removingbot then
+            getBot():remove()
+            sleep(1500)
+        end 
+        break
+    end
+end
