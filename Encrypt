@@ -86,21 +86,24 @@ setting.wordsrandom = function()
     sleep(2000)
 end
 
-setting.generate = function(length, letter)
-    local letter = letter or ""
-    local function stringRandom(num)
-        return (num + math.random()) % 1 > 0.5 and string.char(math.random(65,90)) or string.char(math.random(48,57))
-    end
-    local function generatorHelper(len)
-        letter = letter..stringRandom(len)
-        if len ~= 1  then
-            generatorHelper(len - 1)
+setting.generate = function()
+    local alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    local withnum = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    local generate = ""
+    for i = 1,letter do
+        local random = math.random(1,#alphabet)
+        local randomnumber = math.random(1,#withnum)
+        local acakalpa = string.sub(alphabet,random,random)
+        local acaknomor = string.sub(withnum,randomnumber,randomnumber)
+        if withnumber then
+            generate = generate..acaknomor
+        else
+            generate = generate..acakalpa
         end
-        return letter
     end
-    return generatorHelper(length)
+    return generate
 end
-local find = setting.generate(math.random(letters,letters))
+local find = setting.generate()
 
 setting.split = function(str, ptr)
     if not ptr then 
