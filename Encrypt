@@ -103,8 +103,6 @@ setting.generate = function()
     end
     return generate
 end
-local trx = setting.generate()
-local find = setting.generate()
 
 setting.split = function(str, ptr)
     if not ptr then 
@@ -1188,26 +1186,26 @@ setting.rotate = function(custom,static,blockid)
     else
         ::BACK::
         log("["..indexbot.."]PNB")
-        setting.warp(find,"")
+        setting.warp(setting.generate(),"")
         setting.wordsrandom()
         setting.webhookinfo()
         if not nuked then
             while math.floor(getBot():getLocal().pos.x/32) ~= posX or math.floor(getBot():getLocal().pos.y/32) ~= posY do
                 setting.u(posX,posY)
                 sleep(150)
-                setting.reconnect(find,"",posX,posY)
+                setting.reconnect(setting.generate(),"",posX,posY)
             end
             if pnbtile == 1 then
                 while setting.n(blockid) >= pnbtile do
                     if getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32) + tileY).bg ~= 0 or getBot():getTile(math.floor(getBot():getLocal().pos.x/32), math.floor(getBot():getLocal().pos.y/32) + tileY).fg ~= 0 then
                         setting.p(0,tileY)
                         sleep(delaypunch)
-                        setting.reconnect(find,"",math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32))
+                        setting.reconnect(setting.generate(),"",math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32))
                     end
                     if getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32) + tileY).bg == 0 or getBot():getTile(math.floor(getBot():getLocal().pos.x/32), math.floor(getBot():getLocal().pos.y/32) + tileY).fg == 0 then
                         setting.t(blockid,0,tileY)
                         sleep(delayplace)
-                        setting.reconnect(find,"",math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32))
+                        setting.reconnect(setting.generate(),"",math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32))
                     end
                     setting.g(2)
                     sleep(30)
@@ -1224,7 +1222,7 @@ setting.rotate = function(custom,static,blockid)
                             if getBot():getTile(math.floor(getBot():getLocal().pos.x/32) + i,math.floor(getBot():getLocal().pos.y/32) + tileY).fg == 0 and getBot():getTile(math.floor(getBot():getLocal().pos.x/32) + i,math.floor(getBot():getLocal().pos.y/32) + tileY).bg == 0 then
                                 setting.t(blockid,i,tileY)
                                 sleep(delayplace)
-                                setting.reconnect(find,"",math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32))
+                                setting.reconnect(setting.generate(),"",math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32))
                             end
                         end
                     end
@@ -1233,7 +1231,7 @@ setting.rotate = function(custom,static,blockid)
                             if getBot():getTile(math.floor(getBot():getLocal().pos.x/32) + i,math.floor(getBot():getLocal().pos.y/32) + tileY).fg ~= 0 or getBot():getTile(math.floor(getBot():getLocal().pos.x/32) + i,math.floor(getBot():getLocal().pos.y/32) + tileY).bg ~= 0 then
                                 setting.p(i,tileY)
                                 sleep(delaypunch)
-                                setting.reconnect(find,"",math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32))
+                                setting.reconnect(setting.generate(),"",math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32))
                             end
                         end
                     end
@@ -1249,8 +1247,8 @@ setting.rotate = function(custom,static,blockid)
         else
             nuked = false
             sleep(5000)
-            setting.botinfo("World : [ "..find.." ] is NUKED @everyone")
-            log("["..indexbot.."]World pnb : [ "..find.." ] is NUKED, terminated script")
+            setting.botinfo("World : [ "..setting.generate().." ] is NUKED @everyone")
+            log("["..indexbot.."]World pnb : [ "..setting.generate().." ] is NUKED, terminated script")
             return error()
         end
     end
@@ -1803,13 +1801,13 @@ setting.placeall = function()
     while getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32) - 1).fg ~= 226 do
         setting.t(226,0,-1)
         sleep(delayplace)
-        setting.reconnect(find,"")
+        setting.reconnect(setting.generate(),"")
     end
     sleep(1000)
     if getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32) - 1).fg == 226 then
         setting.p(0,-1)
         sleep(delayplace)
-        setting.reconnect(find,"")
+        setting.reconnect(setting.generate(),"")
     end
     if setting.n(226) > 0 and getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32)- 1).fg == 226 then
         setting.storingjammer()
@@ -1932,14 +1930,14 @@ if pnbother then
     else
         log("["..indexbot.."]Generating worlds")
         setting.botinfo("Bot : "..getBot():getLocal().name.." is generating a new world")
-        setting.warp(find,"")
+        setting.warp(setting.generate(),"")
         setting.v(1,0)
         sleep(500)
-        setting.reconnect(find,"")
+        setting.reconnect(setting.generate(),"")
         if not nuked then
             setting.placeall()
-            setting.botinfo("Bot : "..getBot():getLocal().name.." success generating a new world, the world name is : "..find.."")
-            setting.writeFile("jammer",'"'..find..'",')
+            setting.botinfo("Bot : "..getBot():getLocal().name.." success generating a new world, the world name is : "..setting.generate().."")
+            setting.writeFile("jammer",'"'..setting.generate()..'",')
             if setting.n(226) > 0 then
                 goto HERE
             end
@@ -2034,21 +2032,21 @@ while true do
             setting.storingseeds()
         end
         if pnbother then
-            setting.warp(find,"")
+            setting.warp(setting.generate(),"")
             while getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32)).fg == 6 do
                 setting.v(1,0)
                 sleep(500)
             end
-            setting.reconnect(find,"")
+            setting.reconnect(setting.generate(),"")
             while getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32)-1).fg == 226 do
                 setting.p(0,-1)
                 sleep(delaypunch)
-                setting.reconnect(find,"",math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32))
+                setting.reconnect(setting.generate(),"",math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32))
             end
         end
         log("["..indexbot.."][ "..getBot():getLocal().name.." ] Already finished all world, Terminated script!")
         setting.botinfo("[ "..getBot():getLocal().name.." ] Already finished all world, Terminated script! @everyone")
-        setting.warp(find,"")
+        setting.warp(setting.generate(),"")
         setting.wordsrandom()
         if removingbot then
             getBot():remove()
