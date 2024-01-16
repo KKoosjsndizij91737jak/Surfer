@@ -1,3 +1,137 @@
+
+----------> MAIN CONFIG <----------
+
+block = 652 ---> farmable item id
+
+worldfarm = {"MBDRWKY"} ---> world farm name
+doorfarm = "thefiqs" ---> id door farm
+farmperbot = 1 ---> bot perworld
+
+pickaxe = false ---> set true to enable take pickaxe feature
+worldpickaxe = {"x:x"} ---> world to take pickaxe
+
+----------> LEVELING CONFIG <----------
+
+leveling = true ---> set true leveling
+setminlvl = 6 ---> bot harvest until reached level
+setmaxlvl = 7 ---> custom bot level to stop leveling
+
+worldleveling = {"ISCTTOC"} ---> world to bot leveling
+doorworldleveling = "thefiqs" ---> id door world leveling
+idblockleveling = 652 ---> farmable item id to leveling
+worldperbot = 1 ---> bot perworld
+
+----------> PNB OTHER CONFIG <----------
+
+pnbother = false ---> set true to enable pnb at tutorial world
+customBreakX = 50 ---> custom coordinate for pnb other worlds
+customBreakY = 16 ---> custom coordinate for pnb other worlds
+
+worldjammer = {"akbartestret:terjal"} ---> world signal jammer storage, write : "urworld:uriddoor"
+dropjammerX = 2 ---> using real growtopia coordinate
+dropjammerY = 22 ---> using real growtopia coordinate
+
+takebackjammer = false ---> set true to take back the jammer if bot are suspended or any trouble
+worldtotakeback = {"x","x","x"} ---> world list to take back the jammer
+worldperbotjammer = 1 ---> bot auto fill world
+
+----------> STORAGE & BUY PACK CONFIG <----------
+
+worldseed = {"derraproject","x","x"} ---> storage seed name
+doorworldseed = "terjal" ---> id door storage seed
+amountseed = 150 ---> amount seed at bot backpack to storing
+limitseed = 100000 ---> limit seed perworld
+dropseedX = 80 ---> growtopia coordinate
+dropseedY = 20 ---> growtopia coordinate
+
+worldpack = {"x","x","x"} ---> storage pack name
+doorworldpack = "x" ---> id door storage pack
+limitpack = 10000 ---> limit pack perworld
+droppackX = 80 ---> growtopia coordinate
+droppackY = 20 ---> growtopia coordinate
+
+buypack = false ---> set true to buying pack
+packList = {1,1,1,1} ---> item id pack list
+debug = "x" ---> debug pack
+pricepack = 1 ---> price pack at store
+mingems = 1 ---> minimum gems to buying pack
+
+----------> MODE CONFIG <----------
+
+pnbtile = 3 ---> custom pnb tile 1 - 5
+removingbot = false ---> set true to remove bot
+upbackpack = false ---> set true to up backpack
+dontplant = false ---> set true to not plant
+sayingrandomwords = false ---> set true to enable saying random words after warp
+
+separated = false ---> set true to separating drop
+ignoregems = false ---> set true to ignoring gems
+range = 3 ---> custom range to collect
+looping = false ---> set true to looping
+
+clearhistory = false ---> set true to joining random world after storing items
+worldclearhistory = {"x","x","x"} ---> world to join after storing items
+
+trashList = {5024, 5026, 5028, 5030, 5032, 5034, 5038, 5040, 5042, 5044} ---> item id to trash
+amount = 100 ---> total amount to trash
+
+----------> SPECIAL EVENT CONFIG <----------
+
+eventList = {1,1,1,1} ---> item id special event
+itemtowear = false ---> set true to wear item, like using magnifience at harvest festival
+iditemtowear = 1 ---> item id to wear
+amountevent = 10 ---> total amount to storing special event
+itemitemkeep = 3 ---> total item amount at bp after drop
+worlditemtowear = {"x:x"} ---> world item to use
+
+worldevent = {"x","x","x"} ---> storage event name
+doorworldevent = "x" ---> id door storage event
+limitevent = 10000 ---> limit event perworld
+dropeventX = 2 ---> growtopia coordinate
+dropeventY = 22 ---> growtopia coordinate
+
+----------> DELAY & WEBHOOK CONFIG <----------
+
+delayplace = 110 ---> delay place
+delaypunch = 185 ---> delay punch
+delayharvest = 120 ---> delay harvest
+delayplant = 110 ---> delay plant
+delaywarp = 10000 ---> delay warp
+delaydrop = 2000 ---> delay drop
+delayreconnect = 60000 ---> delay reconnect
+
+webhookstatus = false ---> set true to enable webhook status
+webhookstatuslink = "x" ---> webhook status link
+
+infostorage = false ---> set true to enable webhook info storage
+linkinfostorage = "x" ---> link webhook
+messageidinfostorage = "x" ---> message id webhook
+
+botinfo = false ---> set true to enable about ur all bot info
+linkbotinfo = "x" ---> link webhook
+messageidbotinfo = "x" ---> message id webhook
+
+----------> BACKUP CONFIG <----------
+
+backuplevel, maxlevel = true, 8 ---> set true to switch bot when bot reach the level
+backupwhensuspend = false ---> set true to switch bot when status is suspended
+proxy = false ---> set true to using proxy
+backupPerbot = 1 ---> backup per bot
+
+typeaccount = "normal" ---> choose "normal" or "guest"
+macposition = "left" ---> position of ur guest mac format . Left : [mac|rid], Right : [rid|mac]
+
+---> if using proxy : write "USER|PASS|PROXY"
+backupList = {
+    "2MG6KB6QX8T|frlyfo939.",
+    "9YK9JX7MV7B|rjzsri226.",
+    "0AA8QD5VM9U|iqwwwq840.",
+    "5RO3QH9NT1O|gcywpp640.",
+}
+
+
+----------> CODE AREA <----------
+
 transcedence = {12,30,686,858,886,1040,1294,4164,4190,1684}
 
 for i, bot in pairs(getBots()) do
@@ -11,7 +145,9 @@ getBot():setBool("legalmode",false)
 tilebreak = {}
 infoid = {}
 worlds = {}
+backups = {}
 sjam = {}
+lvling = {}
 index = 1
 strings = ""
 local find = getBot():getLocal().name
@@ -25,7 +161,8 @@ local setting = {
     seed = 1,
     pack = 1,
     timechecker = os.time(),
-    take = 1
+    take = 1,
+    backup = 1
 }
 jammerX = dropjammerX - 1
 jammerY = dropjammerY - 1
@@ -41,6 +178,14 @@ seed = block + 1
 
 for i = 1,worldperbotjammer do
     table.insert(sjam,worldtotakeback[math.floor((indexbot - 1) * worldperbotjammer + i)])
+end
+
+for i = 1,backupPerbot do
+    table.insert(backups,backupList[math.floor((indexbot - 1) * backupPerbot + i)])
+end
+
+for i = 1,worldperbot do
+    table.insert(lvling,worldleveling[math.floor((indexbot - 1) * worldperbot + i)])
 end
 
 setting.wordsrandom = function()
@@ -109,6 +254,191 @@ end
 
 for x = 0, math.ceil(pnbtile/2) - 1 do
     table.insert(tilebreak,x)
+end
+
+withnumber = true
+setting.generate = function()
+    local alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    local withnum = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    local generate = ""
+    for i = 1,12 do
+        local random = math.random(1,#alphabet)
+        local randomnumber = math.random(1,#withnum)
+        local acakalpa = string.sub(alphabet,random,random)
+        local acaknomor = string.sub(withnum,randomnumber,randomnumber)
+        if withnumber then
+            generate = generate..acaknomor
+        else
+            generate = generate..acakalpa
+        end
+    end
+    return generate
+end
+local trx = setting.generate()
+
+setting.backupacc = function(threads)
+    ::BACK::
+    for i = setting.backup, #backups do
+        thread = setting.split(backups[i],"([^|]+)")[1]
+        threading = setting.split(backups[i],"([^|]+)")[2]
+        num = setting.split(backups[i],"([^|]+)")[3]
+        if proxy then
+            if typeaccount == "guest" then
+                if macposition == "left" then
+                    loginGuest(trx,num,thread.."+"..threading)
+                elseif macposition == "right" then
+                    loginGuest(trx,num,threading.."+"..thread)
+                end
+            elseif typeaccount == "normal" then
+                addBot(thread,threading,num)
+            end
+        else
+            if typeaccount == "guest" then
+                if macposition == "left" then
+                    loginGuest(trx,thread.."+"..threading)
+                elseif macposition == "right" then
+                    loginGuest(trx,threading.."+"..thread)
+                end
+            elseif typeaccount == "normal" then
+                getBot():updateBot(thread,threading)
+            end
+        end
+        sleep(8000)
+        setting.botinfo("Changing bot to : [ "..getBot():getLocal().name.." ]")
+        getBot():setBool("autoReconnect", false)
+        getBot():setBool("legalmode",false)
+        if typeaccount == "normal" then
+            while getBot():getEnetStatus() ~= Connected do
+                getBot():reConnect()
+                sleep(delayreconnect)
+                if getBot():getEnetStatus() == Suspended or getBot():getEnetStatus() == Banned then
+                    setting.botinfo("Failed switch bot to : [ "..getBot():getLocal().name.." ] status is "..setting.getStatusBot()..", Removing bots @everyone")
+                    setting.writeFile("botbackupstatus","[ "..getBot():getLocal().name.." ] status is "..setting.getStatusBot().."")
+                    getBot():remove()
+                    sleep(2000)
+                    setting.backup = setting.backup + 1
+                    if setting.backup > #backups then
+                        print("No more bots to switch, sc terminated")
+                        setting.botinfo("No more bots to switch, sc terminated @everyone")
+                        if removingbot then
+                            getBot():remove()
+                            sleep(2000)
+                        end
+                        return error()
+                    end
+                    sleep(2000)
+                    goto BACK
+                end
+            end
+            if getBot():getEnetStatus() == Connected and getBot():getLocal().level < maxlevel then
+                if proxy then
+                    setting.botinfo("Success switch bot to : [ "..getBot():getLocal().name.." ], proxy : "..getBot():getLocal().proxy.."")
+                else
+                    setting.botinfo("Success switch bot to : [ "..getBot():getLocal().name.." ]")
+                end
+                break
+            elseif getBot():getEnetStatus() == Connected and getBot():getLocal().level >= maxlevel then
+                if proxy then
+                    setting.botinfo("Failed switch bot to : [ "..getBot():getLocal().name.." ], proxy : "..getBot():getLocal().proxy..", this bot has reached max level, rechecking ur backup bot list")
+                else
+                    setting.botinfo("Failed switch bot to : [ "..getBot():getLocal().name.." ], this bot has reached max level, rechecking ur backup bot list")
+                end
+                getBot():remove()
+                sleep(2000)
+                setting.backup = setting.backup + 1
+                if setting.backup > #backups then
+                    print("No more bots to switch, sc terminated")
+                    setting.botinfo("No more bots to switch, sc terminated @everyone")
+                    if removingbot then
+                        getBot():remove()
+                        sleep(2000)
+                    end
+                    error()
+                end
+            end
+        elseif typeaccount == "guest" then
+            while getBot():getEnetStatus() ~= Connected do
+                getBot():Reconnect()
+                sleep(delayreconnect)
+                if getBot():getEnetStatus() == Suspended or getBot():getEnetStatus() == Banned then
+                    setting.botinfo("Bot backup : [ "..getBot():getLocal().name.." ] status is "..setting.getStatusBot()..", Terminated script @everyone")
+                    setting.writeFile("botbackupstatus","[ "..getBot():getLocal().guestinfo.." ] status is "..setting.getStatusBot().."")
+                    getBot():remove()
+                    sleep(2000)
+                    setting.backup = setting.backup + 1
+                    if setting.backup > #backups then
+                        print("No more bots to switch, sc terminated")
+                        setting.botinfo("No more bots to switch, sc terminated @everyone")
+                        if removingbot then
+                            getBot():remove()
+                            sleep(2000)
+                        end
+                        error()
+                    end
+                    goto BACK
+                end
+            end
+            if getBot():getEnetStatus() == Connected and getBot():getLocal().level < maxlevel then
+                if proxy then
+                    setting.botinfo("Success add bot to : [ "..getMac()..""..symbol..""..getRid().." ], proxy : "..getBot():getLocal().proxy.."")
+                else
+                    setting.botinfo("Success add bot to : [ "..getMac()..""..symbol..""..getRid().." ]")
+                end
+                break
+            elseif getBot().status:find("online") and getBot():getLocal().level >= maxlevel then
+                if proxy then
+                    setting.botinfo("Failed switch bot to : [ "..getBot():getLocal().guestinfo.." ], proxy : "..getBot():getLocal().proxy..", this bot has reached max level, rechecking ur backup bot list")
+                else
+                    setting.botinfo("Failed switch bot to : [ "..getBot():getLocal().guestinfo.." ], this bot has reached max level, rechecking ur backup bot list")
+                end
+                getBot():remove()
+                sleep(2000)
+                setting.backup = setting.backup + 1
+                if setting.backup > #backups then
+                    print("No more bots to switch, sc terminated")
+                    setting.botinfo("No more bots to switch, sc terminated @everyone")
+                    if removingbot then
+                        getBot():remove()
+                        sleep(2000)
+                    end
+                    error()
+                end
+            end
+        end
+    end
+    if setting.n(9640) > 0 then
+        ::SUCK::
+        setting.warp(getBot():getLocal().name,"")
+        setting.wordsrandom()
+        while getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32) - 1).fg ~= 9640 do
+            setting.t(9640,0,-1)
+            sleep(delayplace)
+        end
+        if setting.n(9640) > 0 then
+            goto SUCK
+        end
+    end
+    ::Check::
+    if setting.n(98) == 0 and pickaxe and getBot():getEnetStatus() == Connected then
+        setting.takepickaxe()
+        goto Check
+    end
+end
+
+setting.checkaccount = function(threads)
+    setting.botinfo("[ "..getBot():getLocal().name.." ] has reached level limit, changing bot if bot switch are enable")
+    if setting.n(seed) > 0 then
+        setting.storingseeds(seed)
+    end
+    if backuplevel then
+        setting.backupacc(threads)
+    else        
+        if removingbot then
+            getBot():remove()
+            sleep(2000)
+        end
+        return error()
+    end
 end
 
 setting.getStatusBot = function()
@@ -438,7 +768,12 @@ setting.reconnect = function(world,id,x,y)
             sleep(delayreconnect)
             if getBot():getEnetStatus() == Suspended or getBot():getEnetStatus() == Banned then
                 setting.botinfo("[ "..getBot():getLocal().name.." ] status is "..setting.getStatusBot()..", removing bot @everyone")
-                if not botBackup then
+                if backupwhensuspend then
+                    getBot():remove()
+                    sleep(2000)
+                    setting.botinfo("Backup are enable, changing bot [ "..getBot():getLocal().name.." ]")
+                    setting.backupacc(threads)
+                else
                     if removingbot then
                         getBot():remove()
                         sleep(2000)
@@ -542,16 +877,23 @@ setting.reconnect = function(world,id,x,y)
 end
 
 setting.warp = function(world,door)
-    world = world:lower()
-    door = door or ""
-    if getBot():getCurrentWorld() ~= world then
+    name = world
+    if door ~= "" then
+        name = name .. "|" ..door
+    end
+    if getBot():getCurrentWorld() ~= world:lower() then
         local count = 0
-        while getBot():getCurrentWorld() ~= world and not nuked do
+        while getBot():getCurrentWorld() ~= world:lower() and not nuked do
             while getBot():getEnetStatus() ~= Connected do
                 getBot():reConnect()
                 sleep(delayreconnect)
                 if getBot():getEnetStatus() == Suspended or getBot():getEnetStatus() == Banned then
-                    if not botBackup then
+                    if backupwhensuspend then
+                        getBot():remove()
+                        sleep(2000)
+                        setting.botinfo("Backup are enable, changing bot [ "..getBot():getLocal().name.." ]")
+                        setting.backupacc(threads)
+                    else
                         if removingbot then
                             getBot():remove()
                             sleep(2000)
@@ -560,7 +902,7 @@ setting.warp = function(world,door)
                     end
                 end
             end
-            getBot():sendPacket("action|join_request\nname|"..world.."|"..door.."\ninvitedWorld|0",3)
+            getBot():sendPacket("action|join_request\nname|"..name.."\ninvitedWorld|0",3)
             count = count + 1
             if count >= 10 then
                 nuked = true
@@ -568,7 +910,7 @@ setting.warp = function(world,door)
             sleep(delaywarp)
         end
     end
-    if getBot():getCurrentWorld() == world then
+    if getBot():getCurrentWorld() == world:lower() then
         if door ~= "" then
             local stuck = 0
             while getBot():getTile(math.floor(getBot():getLocal().pos.x/32),math.floor(getBot():getLocal().pos.y/32)).fg == 6 and not wrong do
@@ -576,7 +918,12 @@ setting.warp = function(world,door)
                     getBot():reConnect()
                     sleep(delayreconnect)
                     if getBot():getEnetStatus() ~= Suspended or getBot():getEnetStatus() ~= Banned then
-                        if not botBackup then
+                        if backupwhensuspend then
+                            getBot():remove()
+                            sleep(2000)
+                            setting.botinfo("Backup are enable, changing bot [ "..getBot():getLocal().name.." ]")
+                            setting.backupacc(threads)
+                        else
                             if removingbot then
                                 getBot():remove()
                                 sleep(2000)
@@ -585,7 +932,7 @@ setting.warp = function(world,door)
                         end
                     end
                 end
-                getBot():sendPacket("action|join_request\nname|"..world.."|"..door.."\ninvitedWorld|0",3)
+                getBot():sendPacket("action|join_request\nname|"..name.."\ninvitedWorld|0",3)
                 sleep(delaywarp)
                 stuck = stuck + 1
                 if stuck == 5 then
@@ -1000,7 +1347,7 @@ setting.storingpacks = function()
     end
 end
 
-setting.storingseeds = function()
+setting.storingseeds = function(seedid)
     for i = setting.seed , #worldseed do
         ::Here::
         world = worldseed[i]
@@ -1038,8 +1385,8 @@ setting.storingseeds = function()
                                 seedY = seedY - 1
                                 tileSeed = 0
                             end
-                            while setting.n(seed) > 0 do
-                                setting.k(seed)
+                            while setting.n(seedid) > 0 do
+                                setting.k(seedid)
                                 sleep(delaydrop)
                                 setting.reconnect(world,doorworldseed,seedX + (tileSeed),seedY)
                                 count = count + 1
@@ -1049,7 +1396,7 @@ setting.storingseeds = function()
                                 end
                             end
                         end
-                        if setting.n(seed) == 0 then
+                        if setting.n(seedid) == 0 then
                             break
                         end
                     end
@@ -1124,7 +1471,14 @@ setting.rotate = function(custom,static,blockid)
                 end
                 setting.g(2)
                 sleep(30)
-                if getBot():getLocal().gems >= mingems and buypack then
+                if getBot():getLocal().level >= maxlevel and backuplevel then
+                    setting.checkaccount(threads)
+                    log("["..indexbot.."]Pnb")
+                    setting.warp(custom,static)
+                    setting.wordsrandom()
+                    setting.webhookinfo()
+                    goto BACK
+                elseif getBot():getLocal().gems >= mingems and buypack then
                     setting.buying()
                     setting.storingpacks()
                     log("["..indexbot.."]Pnb")
@@ -1155,7 +1509,14 @@ setting.rotate = function(custom,static,blockid)
                 end
                 setting.g(3)
                 sleep(30)
-                if getBot():getLocal().gems >= mingems and buypack then
+                if getBot():getLocal().level >= maxlevel and backuplevel then
+                    setting.checkaccount(threads)
+                    log("["..indexbot.."]Pnb")
+                    setting.warp(custom,static)
+                    setting.wordsrandom()
+                    setting.webhookinfo()
+                    goto BACK
+                elseif getBot():getLocal().gems >= mingems and buypack then
                     setting.buying()
                     setting.storingpacks()
                     log("["..indexbot.."]Pnb")
@@ -1192,7 +1553,14 @@ setting.rotate = function(custom,static,blockid)
                     end
                     setting.g(2)
                     sleep(30)
-                    if getBot():getLocal().gems >= mingems and buypack then
+                    if getBot():getLocal().level >= maxlevel and backuplevel then
+                        setting.checkaccount(threads)
+                        log("["..indexbot.."]Pnb")
+                        setting.warp(custom,static)
+                        setting.wordsrandom()
+                        setting.webhookinfo()
+                        goto BACK
+                    elseif getBot():getLocal().gems >= mingems and buypack then
                         setting.buying()
                         setting.storingpacks()
                         goto BACK
@@ -1220,7 +1588,14 @@ setting.rotate = function(custom,static,blockid)
                     end
                     setting.g(3)
                     sleep(30)
-                    if getBot():getLocal().gems >= mingems and buypack then
+                    if getBot():getLocal().level >= maxlevel and backuplevel then
+                        setting.checkaccount(threads)
+                        log("["..indexbot.."]Pnb")
+                        setting.warp(custom,static)
+                        setting.wordsrandom()
+                        setting.webhookinfo()
+                        goto BACK
+                    elseif getBot():getLocal().gems >= mingems and buypack then
                         setting.buying()
                         setting.storingpacks()
                         goto BACK
@@ -1255,6 +1630,7 @@ setting.rechecking = function(threads)
     for _, tile in pairs(getBot():getTiles()) do
         if getBot():canHarvest(tile.x,tile.y) and tile.fg == seed then
             setting.u(tile.x,tile.y)
+            sleep(delayharvest)
             setting.reconnect(threads,doorfarm,tile.x,tile.y)
             while getBot():canHarvest(tile.x,tile.y) do
                 setting.p(0,0)
@@ -1292,7 +1668,7 @@ setting.rechecking = function(threads)
             setting.webhookinfo()
         elseif setting.n(seed) >= amountseed then
             if dontplant then
-                setting.storingseeds()
+                setting.storingseeds(seed)
                 log("["..indexbot.."]Rechecking")
                 setting.warp(threads,doorfarm)
                 setting.wordsrandom()
@@ -1300,7 +1676,7 @@ setting.rechecking = function(threads)
             else
                 setting.plant(threads,doorfarm,seed)
                 if setting.n(seed) >= amountseed then
-                    setting.storingseeds()
+                    setting.storingseeds(seed)
                     log("["..indexbot.."]Harvesting")
                     setting.warp(threads,doorfarm)
                     setting.wordsrandom()
@@ -1347,7 +1723,7 @@ setting.rechecking = function(threads)
             setting.webhookinfo()
         elseif setting.n(seed) >= amountseed then
             if dontplant then
-                setting.storingseeds()
+                setting.storingseeds(seed)
                 log("["..indexbot.."]Rechecking")
                 setting.warp(threads,doorfarm)
                 setting.wordsrandom()
@@ -1355,7 +1731,7 @@ setting.rechecking = function(threads)
             else
                 setting.plant(threads,doorfarm,seed)
                 if setting.n(seed) >= amountseed then
-                    setting.storingseeds()
+                    setting.storingseeds(seed)
                     log("["..indexbot.."]Harvesting")
                     setting.warp(threads,doorfarm)
                     setting.wordsrandom()
@@ -1373,49 +1749,30 @@ setting.rechecking = function(threads)
         end
     end
     if not dontplant then
-        tileA = 99
-        tileB = 0
-        tileC = -1
-        tileD = 0
-        for y = -1, 53 do
-            for x = tileA, tileB, tileC do
-                if getBot():getTile(x,y).fg == 0 and getBot():getTile(x,y).flags ~= 0 then
-                    if setting.n(seed) == 0 then
-                        break
-                    end
-                    setting.u(x,y)
+        for _, tile in ipairs(getBot():getTiles()) do
+            if  tile.fg == 0 then 
+                if getBot():getTile(tile.x, tile.y).fg == 0 and getBot():getTile(tile.x, tile.y + 1).fg ~= 0 and getBot():getTile(tile.x, tile.y + 1).fg ~= seed  then
+                    setting.u(tile.x,tile.y)
                     sleep(delayplant)
-                    setting.reconnect(threads,doorfarm,x,y)
-                    while getBot():getTile(x,y).fg ~= seed do
+                    setting.reconnect(threads,doorfarm,tile.x,tile.y)
+                    if getBot():getTile(tile.x,tile.y).fg ~= seed then
                         setting.t(seed,0,0)
                         sleep(delayplant)
-                        setting.reconnect(threads,doorfarm,x,y)
+                        setting.reconnect(threads,doorfarm,tile.x,tile.y)
                     end
                 end
-            end
-            if tileD == 1 then
-                if tileA == 0 then
-                    tileA = 99
-                    tileB = 0
-                    tileC = -1
-                    tileD = 0
-                elseif tileA == 99 then
-                    tileA = 0
-                    tileB = 99
-                    tileC = 1
-                    tileD = 0
+                if setting.n(seed) == 0 then
+                    break
                 end
-            elseif tileD == 0 then
-                tileD = tileD + 1
-            end
+            end 
         end
-    end
-    if setting.n(seed) >= amountseed then
-        setting.storingseeds()
-        log("["..indexbot.."]Rechecking")
-        setting.warp(threads,doorfarm)
-        setting.wordsrandom()
-        setting.webhookinfo()
+        if setting.n(seed) >= amountseed then
+            setting.storingseeds(seed)
+            log("["..indexbot.."]Rechecking")
+            setting.warp(threads,doorfarm)
+            setting.wordsrandom()
+            setting.webhookinfo()
+        end
     end
 end
 
@@ -1429,6 +1786,14 @@ setting.harvest = function(threads)
     for y = -1, 53 do
         for x = tileA, tileB, tileC do
             if getBot():canHarvest(x,y) and getBot():getTile(x,y).fg == seed then
+                if getBot():getLocal().level >= maxlevel and backuplevel then
+                    setting.checkaccount(threads)
+                    log("["..indexbot.."]Pnb")
+                    setting.warp(threads,doorfarm)
+                    setting.wordsrandom()
+                    setting.webhookinfo()
+                    goto BACK
+                end
                 if setting.n(block) > 180 then
                     if pnbother then
                         setting.rotate(threads,"",block)
@@ -1461,7 +1826,7 @@ setting.harvest = function(threads)
                     goto BACK
                 elseif setting.n(seed) > amountseed then
                     if dontplant then
-                        setting.storingseeds()
+                        setting.storingseeds(seed)
                         log("["..indexbot.."]Harvesting")
                         setting.warp(threads,doorfarm)
                         setting.wordsrandom()
@@ -1470,7 +1835,7 @@ setting.harvest = function(threads)
                     else
                         setting.plant(threads,doorfarm,seed)
                         if setting.n(seed) >= amountseed then
-                            setting.storingseeds()
+                            setting.storingseeds(seed)
                             log("["..indexbot.."]Harvesting")
                             setting.warp(threads,doorfarm)
                             setting.wordsrandom()
@@ -1551,6 +1916,13 @@ setting.levelingcek = function(params)
                 setting.webhookinfo()
             elseif setting.n(idblockleveling+1) >= amountseed then
                 setting.plant(params,doorworldleveling,idblockleveling+1)
+                if setting.n(idblockleveling+1) >= amountseed then
+                    setting.storingseeds(idblockleveling+1)
+                    log("["..indexbot.."]Rechecking")
+                    setting.warp(params,doorworldleveling)
+                    setting.wordsrandom()
+                    setting.webhookinfo()
+                end
                 goto BACK
             elseif getBot():getLocal().gems > mingems and buypack then
                 setting.buying()
@@ -1561,41 +1933,29 @@ setting.levelingcek = function(params)
                 setting.webhookinfo()
             end
         end
-        tileA = 99
-        tileB = 0
-        tileC = -1
-        tileD = 0
-        for y = -1, 53 do
-            for x = tileA, tileB, tileC do
-                if getBot():getTile(x,y).fg == 0 and getBot():getTile(x,y).flags ~= 0 then
-                    if setting.n(idblockleveling+1) == 0 then
-                        break
-                    end
-                    setting.u(x,y)
+        for _, tile in ipairs(getBot():getTiles()) do
+            if  tile.fg == 0 then 
+                if getBot():getTile(tile.x, tile.y).fg == 0 and getBot():getTile(tile.x, tile.y + 1).fg ~= 0 and getBot():getTile(tile.x, tile.y + 1).fg ~= idblockleveling+1  then
+                    setting.u(tile.x,tile.y)
                     sleep(delayplant)
-                    setting.reconnect(params,doorworldleveling,x,y)
-                    while getBot():getTile(x,y).fg ~= idblockleveling+1 do
+                    setting.reconnect(params,doorworldleveling,tile.x,tile.y)
+                    if getBot():getTile(tile.x,tile.y).fg ~= idblockleveling+1 then
                         setting.t(idblockleveling+1,0,0)
                         sleep(delayplant)
-                        setting.reconnect(params,doorworldleveling,x,y)
+                        setting.reconnect(params,doorworldleveling,tile.x,tile.y)
                     end
                 end
-            end
-            if tileD == 1 then
-                if tileA == 0 then
-                    tileA = 99
-                    tileB = 0
-                    tileC = -1
-                    tileD = 0
-                elseif tileA == 99 then
-                    tileA = 0
-                    tileB = 99
-                    tileC = 1
-                    tileD = 0
+                if setting.n(idblockleveling+1) == 0 then
+                    break
                 end
-            elseif tileD == 0 then
-                tileD = tileD + 1
-            end
+            end 
+        end
+        if setting.n(idblockleveling+1) >= amountseed then
+            setting.storingseeds(idblockleveling+1)
+            log("["..indexbot.."]Rechecking")
+            setting.warp(params,doorworldleveling)
+            setting.wordsrandom()
+            setting.webhookinfo()
         end
     end
 end
@@ -1608,7 +1968,7 @@ setting.plant = function(custom,static,seedid)
     log("["..indexbot.."]Planting")
     for y = -1, 53 do
         for x = tileA, tileB, tileC do
-            if getBot():getTile(x,y).fg == 0 and getBot():getTile(x,y).flags ~= 0 then
+            if getBot():getTile(x, y).fg == 0 and getBot():getTile(x, y + 1).fg ~= 0 and getBot():getTile(x, y + 1).fg ~= seedid  then
                 if setting.n(seedid) == 0 then
                     break
                 end
@@ -1668,7 +2028,13 @@ setting.levelings = function(params)
                 end
                 if setting.n(idblockleveling+1) > amountseed then
                     setting.plant(params,doorworldleveling,idblockleveling+1)
-                    log("["..indexbot.."]Leveling")
+                    if setting.n(idblockleveling+1) >= amountseed then
+                        setting.storingseeds(idblockleveling+1)
+                        log("["..indexbot.."]Rechecking")
+                        setting.warp(params,doorworldleveling)
+                        setting.wordsrandom()
+                        setting.webhookinfo()
+                    end
                     goto BACK
                 elseif getBot():getLocal().gems > mingems and buypack then
                     setting.buying()
@@ -1856,32 +2222,18 @@ setting.storingjammer = function()
 end
 
 setting.botswitchs = function()
-    if indexbot == 1 then
-        if proxy then
-            for idx, key in pairs(proxyList) do
-                local ip, port, user, pass = string.match(key,
-                    "([^:]+):([^:]+):([^:]+):([^:]+)")
-                ip = ip .. ":" .. port
-                Proxy = {
-                    HostName = ip,
-                    Username = user,
-                    Password = pass,
-                    Type = SOCKS5
-                }
-                addProxy(Proxy)
-            end
-        end
-        if botBackup then
-            for _, list in pairs(backupList) do
-                thread = setting.split(list,"[^"..symbol.."]+")[1]
-                num = setting.split(list,"[^"..symbol.."]+")[2]
-                setting.writeFile("BotSwitch",thread..":"..num)
-            end
-        end
+    for idx, key in pairs(proxyList) do
+        local ip, port, user, pass = string.match(key,
+            "([^:]+):([^:]+):([^:]+):([^:]+)")
+        ip = ip .. ":" .. port
+        Proxy = {
+            HostName = ip,
+            Username = user,
+            Password = pass,
+            Type = SOCKS5
+        }
     end
 end
-
-setting.botswitchs()
 
 if ignoregems then
     getBot():setBool("ignoreGem", true)
@@ -1942,7 +2294,7 @@ if pnbother then
 end
 
 if leveling then
-    for idx, annount in ipairs(worldleveling) do
+    for idx, annount in ipairs(lvling) do
         ::NED::
         setting.storageinfo()
         setting.warp(annount,doorworldleveling)
@@ -2019,7 +2371,7 @@ while true do
     end
     if not looping then
         if setting.n(seed) > 0 then
-            setting.storingseeds()
+            setting.storingseeds(seed)
         end
         if pnbother then
             setting.warp(find,"")
